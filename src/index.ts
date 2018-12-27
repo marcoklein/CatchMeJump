@@ -1,4 +1,4 @@
-import 'phaser';
+import * as Phaser from 'phaser';
 
 var config = {
     type: Phaser.AUTO,
@@ -192,6 +192,7 @@ function playersCollided(playerA, playerB) {
         this.time.delayedCall(3000, () => {player1Freeze = 0;}, [], this);
     }
 }
+
 
 function update() {
     // handle player movement
