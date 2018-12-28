@@ -9,8 +9,8 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
-            debug: true
+            gravity: { y: 900 },
+            //debug: true
         }
     },
     scene: {
@@ -200,6 +200,7 @@ function playersCollided(playerA, playerB) {
  */
 function updateCameraPosition(cam) {
     // find center point of all players
+    let camOffset = 500;
 
     // determine player bounds (area all players lay in)
     var playerBounds = {
@@ -208,10 +209,10 @@ function updateCameraPosition(cam) {
         x2: 0,
         y2: 0,
         get width() {
-            return this.x2 - this.x1;
+            return Math.max(this.x2 - this.x1, 300) + camOffset;
         },
         get height() {
-            return this.y2 - this.y1;
+            return Math.max(this.y2 - this.y1, 300) + camOffset;
         }
     }
     if (player1.x < player2.x) {
@@ -223,26 +224,34 @@ function updateCameraPosition(cam) {
         playerBounds.x1 = player2.x;
         playerBounds.x2 = player1.x;
     }
-    if (player1.y > player2.y) {
-        // player 1 is above player2
+    if (player1.y < player2.y) {
+        // player 1 is below player2
         playerBounds.y1 = player1.y;
         playerBounds.y2 = player2.y;
     } else {
-        // player 2 is above or on equal height
+        // player 2 is below or on equal height
         playerBounds.y1 = player2.y;
         playerBounds.y2 = player1.y;
     }
 
     // calculate center point
-    cam.centerOn(
+    cam.pan(
         (playerBounds.x2 - playerBounds.x1) / 2 + playerBounds.x1, // x position
-        (playerBounds.y2 - playerBounds.y1) / 2 + playerBounds.y1  // y position
+        (playerBounds.y2 - playerBounds.y1) / 2 + playerBounds.y1, // y position
+        100,
+        'Linear'
     );
 
     // calculate scale ratio
-    //cam.setScale(
+    let zoomX = playerBounds.width / cam.width;
+    let zoomY = playerBounds.height / cam.height;
 
-    //)
+    // zoom smoothly to desired scale
+    cam.zoomTo(
+        1 / Math.max(zoomX, zoomY),
+        100,
+        'Linear'
+    );
 
 }
 
@@ -252,7 +261,7 @@ function update() {
     if (player1Freeze <= 0) {
         if (cursors1.left.isDown) {
             // move left
-            player1.setVelocityX(-160);
+            player1.setVelocityX(-320);
             if (player1.body.onFloor() || player1.body.touching.down) {
                 // play walk animation when on ground
                 player1.anims.play('player1Walk', true);
@@ -260,7 +269,7 @@ function update() {
             player1.flipX = true;
         } else if (cursors1.right.isDown) {
             // move right
-            player1.setVelocityX(160);
+            player1.setVelocityX(320);
             if (player1.body.onFloor() || player1.body.touching.down) {
                 // play walk animation when on ground
                 player1.anims.play('player1Walk', true);
@@ -280,7 +289,7 @@ function update() {
 
         // perform jump
         if (cursors1.up.isDown && (player1.body.onFloor() || player1.body.touching.down)) {
-            player1.setVelocityY(-330);
+            player1.setVelocityY(-660);
             player1.anims.play('player1Jump');
         }
     } else {
@@ -293,7 +302,7 @@ function update() {
     if (player2Freeze <= 0) {
         if (cursors2.left.isDown) {
             // move left
-            player2.setVelocityX(-160);
+            player2.setVelocityX(-320);
             if (player2.body.onFloor() || player2.body.touching.down) {
                 // play walk animation when on ground
                 player2.anims.play('player2Walk', true);
@@ -301,7 +310,7 @@ function update() {
             player2.flipX = true;
         } else if (cursors2.right.isDown) {
             // move right
-            player2.setVelocityX(160);
+            player2.setVelocityX(320);
             if (player2.body.onFloor() || player2.body.touching.down) {
                 // play walk animation when on ground
                 player2.anims.play('player2Walk', true);
@@ -321,7 +330,7 @@ function update() {
 
         // perform jump
         if (cursors2.up.isDown && (player2.body.onFloor() || player2.body.touching.down)) {
-            player2.setVelocityY(-330);
+            player2.setVelocityY(-660);
             player2.anims.play('player2Jump');
         }
     } else {
