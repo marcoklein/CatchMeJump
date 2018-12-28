@@ -3,7 +3,7 @@ import * as Phaser from 'phaser';
 var config = {
     type: Phaser.AUTO,
     parent: 'phaser-example',
-    width: 800,
+    width: 400,
     height: 600,
     // enable physics
     physics: {
@@ -58,6 +58,7 @@ function preload() {
     // load tilemap
     this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
     this.load.tilemapTiledJSON("map", "/assets/tilemaps/standard.json");
+
 }
 
 
@@ -177,6 +178,16 @@ function create() {
     //this.cameras.main.setBounds(0, 0, 1400, 1400);
 
 
+    // ensure game size is set properly
+    game.resize(window.innerWidth, window.innerHeight);
+    this.cameras.main.setSize(window.innerWidth, window.innerHeight);
+    // add resize listener
+    window.addEventListener('resize', () => {
+        game.resize(window.innerWidth, window.innerHeight);
+        this.cameras.main.setSize(window.innerWidth, window.innerHeight);
+    });
+
+
 }
 
 function playersCollided(playerA, playerB) {
@@ -254,7 +265,6 @@ function updateCameraPosition(cam) {
     );
 
 }
-
 
 function update() {
     // handle player movement
