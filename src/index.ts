@@ -17,6 +17,9 @@ var config = {
         preload: preload,
         create: create,
         update: update
+    },
+    input: {
+        gamepad: true
     }
 };
 
@@ -40,6 +43,7 @@ var player1Freeze = 0;
 var player2Freeze = 0;
 var cursors1 = null;
 var cursors2 = null;
+let gamepad = null;
 
 var catcherIndex = 0; // 0 means player 1 is catcher, 1 means player 2 is catcher...
 var catcherEmitter = null;
@@ -267,9 +271,10 @@ function updateCameraPosition(cam) {
 }
 
 function update() {
+    gamepad = this.input.gamepad.getPad(0);
     // handle player movement
     if (player1Freeze <= 0) {
-        if (cursors1.left.isDown) {
+        if ((gamepad && gamepad.axes[0].value < -0.1) || cursors1.left.isDown) {
             // move left
             player1.setVelocityX(-320);
             if (player1.body.onFloor() || player1.body.touching.down) {
@@ -277,7 +282,7 @@ function update() {
                 player1.anims.play('player1Walk', true);
             }
             player1.flipX = true;
-        } else if (cursors1.right.isDown) {
+        } else if ((gamepad && gamepad.axes[0].value > 0.1) || cursors1.right.isDown) {
             // move right
             player1.setVelocityX(320);
             if (player1.body.onFloor() || player1.body.touching.down) {
@@ -298,7 +303,7 @@ function update() {
         }
 
         // perform jump
-        if (cursors1.up.isDown && (player1.body.onFloor() || player1.body.touching.down)) {
+        if ((cursors1.up.isDown || (gamepad && gamepad.buttons[0].value === 1)) && (player1.body.onFloor() || player1.body.touching.down)) {
             player1.setVelocityY(-660);
             player1.anims.play('player1Jump');
         }
