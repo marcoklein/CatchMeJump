@@ -172,8 +172,10 @@ function create() {
         }
     );
 
-    // enable camera
-    this.cameras.main.startFollow(player1);
+    // set bounds
+    this.physics.world.setBounds(0, 0, 1400, 1400);
+    //this.cameras.main.setBounds(0, 0, 1400, 1400);
+
 
 }
 
@@ -191,6 +193,57 @@ function playersCollided(playerA, playerB) {
         player1Freeze = 3000;
         this.time.delayedCall(3000, () => { player1Freeze = 0; }, [], this);
     }
+}
+
+/**
+ * Updates camera position too always see all players.
+ */
+function updateCameraPosition(cam) {
+    // find center point of all players
+
+    // determine player bounds (area all players lay in)
+    var playerBounds = {
+        x1: 0,
+        y1: 0,
+        x2: 0,
+        y2: 0,
+        get width() {
+            return this.x2 - this.x1;
+        },
+        get height() {
+            return this.y2 - this.y1;
+        }
+    }
+    if (player1.x < player2.x) {
+        // player 1 is left
+        playerBounds.x1 = player1.x;
+        playerBounds.x2 = player2.x;
+    } else {
+        // player 2 is left or on equal x position
+        playerBounds.x1 = player2.x;
+        playerBounds.x2 = player1.x;
+    }
+    if (player1.y > player2.y) {
+        // player 1 is above player2
+        playerBounds.y1 = player1.y;
+        playerBounds.y2 = player2.y;
+    } else {
+        // player 2 is above or on equal height
+        playerBounds.y1 = player2.y;
+        playerBounds.y2 = player1.y;
+    }
+
+    // calculate center point
+    cam.centerOn(
+        (playerBounds.x2 - playerBounds.x1) / 2 + playerBounds.x1, // x position
+        (playerBounds.y2 - playerBounds.y1) / 2 + playerBounds.y1  // y position
+    );
+
+    // calculate scale ratio
+    //cam.setScale(
+
+    //)
+
 }
 
 
@@ -283,4 +336,6 @@ function update() {
     } else {
         catcherEmitter.setPosition(player2.x, player2.y);
     }
+
+    updateCameraPosition(this.cameras.main);
 }
