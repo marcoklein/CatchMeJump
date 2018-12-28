@@ -20,8 +20,20 @@ var config = {
     }
 };
 
+class Player {
+    catcher: Boolean;
+    freeze: Boolean;
+    cursors: null;
+}
+
+class World {
+    players: Player[] = [];
+}
+
 var game = new Phaser.Game(config);
-var platforms = null;
+
+let world = null;
+
 var player1 = null;
 var player2 = null;
 var player1Freeze = 0;
@@ -36,11 +48,7 @@ function setCatcher() {
 
 }
 
-function preload ()
-{
-    this.load.image('platform', 'assets/sprites/platform.png');
-    
-    
+function preload() {
     // load players
     this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
 
@@ -49,12 +57,12 @@ function preload ()
 
     // load tilemap
     this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
+    this.load.tilemapTiledJSON("map", "/assets/tilemaps/standard.json");
 }
 
 
-function create ()
-{
-    
+function create() {
+
     //  First create a particle manager
     //  A single manager can be responsible for multiple emitters
     //  The manager also controls which particle texture is used by _all_ emitter
@@ -70,97 +78,84 @@ function create ()
 
     // create player
     player1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
-    player1.setCollideWorldBounds(true);
+    //player1.setCollideWorldBounds(true);
 
     player2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
-    player2.setCollideWorldBounds(true);
+    //player2.setCollideWorldBounds(true);
 
-    
+
     // load player animations
     this.anims.create({
         key: 'player1Walk',
-        frames: this.anims.generateFrameNames('players', {prefix: 'alienGreen_walk', start: 1, end: 2}),
+        frames: this.anims.generateFrameNames('players', { prefix: 'alienGreen_walk', start: 1, end: 2 }),
         frameRate: 10,
         repeat: -1
     });
     this.anims.create({
         key: 'player1Idle',
-        frames: [{key: 'players', frame: 'alienGreen_stand'}],
+        frames: [{ key: 'players', frame: 'alienGreen_stand' }],
         frameRate: 10
     });
     this.anims.create({
         key: 'player1Jump',
-        frames: [{key: 'players', frame: 'alienGreen_jump'}],
+        frames: [{ key: 'players', frame: 'alienGreen_jump' }],
         frameRate: 10
     });
     this.anims.create({
         key: 'player1Hurt',
-        frames: [{key: 'players', frame: 'alienGreen_hurt'}],
+        frames: [{ key: 'players', frame: 'alienGreen_hurt' }],
         frameRate: 10
     });
-    
+
     this.anims.create({
         key: 'player2Walk',
-        frames: this.anims.generateFrameNames('players', {prefix: 'alienBlue_walk', start: 1, end: 2}),
+        frames: this.anims.generateFrameNames('players', { prefix: 'alienBlue_walk', start: 1, end: 2 }),
         frameRate: 10,
         repeat: -1
     });
     this.anims.create({
         key: 'player2Idle',
-        frames: [{key: 'players', frame: 'alienBlue_stand'}],
+        frames: [{ key: 'players', frame: 'alienBlue_stand' }],
         frameRate: 10
     });
     this.anims.create({
         key: 'player2Jump',
-        frames: [{key: 'players', frame: 'alienBlue_jump'}],
+        frames: [{ key: 'players', frame: 'alienBlue_jump' }],
         frameRate: 10
     });
     this.anims.create({
         key: 'player2Hurt',
-        frames: [{key: 'players', frame: 'alienBlue_hurt'}],
+        frames: [{ key: 'players', frame: 'alienBlue_hurt' }],
         frameRate: 10
     });
 
-    
-
-    // add platforms to world
-    platforms = this.physics.add.staticGroup();
-
-    platforms.create(500, 150, 'platform');
-    platforms.create(-200, 300, 'platform');
-    platforms.create(400, 450, 'platform');
 
 
-    // create tilemap
-    const level = [
-        [  -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1 ],
-        [  -1,   -1,   -2,   -3,   -1,   -1,   -1,   1,   -2,   -3,   -1 ],
-        [  -1,   -5,   -6,   -7,   -1,   -1,   -1,   -5,   -6,   -7,   -1 ],
-        [  -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1 ],
-        [  -1,   -1,   -1,  -14,  -13,  -14,   -1,   -1,   -1,   -1,   -1 ],
-        [  -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1 ],
-        [  -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1 ],
-        [  -1,   -1,  9,  9,  9,  9,  9,   -1,   -1,   -1,  9 ],
-        [  -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  -1,  -1 ],
-        [ -1,  -1,  -1,   -1,   -1,   -1,   -1,   -1,  -1,  -1,  -1 ],
-        [ 9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 ]
-      ];
-    
-    // When loading from an array, make sure to specify the tileWidth and tileHeight
-    const map = this.make.tilemap({ data: level, tileWidth: 70, tileHeight: 70 });
-    const tiles = map.addTilesetImage('base_tiles');
-    const layer = map.createStaticLayer(0, tiles, 0, 0);
+    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+    // Phaser's cache (i.e. the name you used in preload)
+    const map = this.make.tilemap({key: 'map'});
+    const tileset = map.addTilesetImage('base_platformer', 'base_tiles');
+  
+    // Parameters: layer name (or index) from Tiled, tileset, x, y
+    const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
+    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
+    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
 
+    // unwalkable tiles are marked as collidable
+    worldLayer.setCollisionByProperty({collides: true});
 
-    layer.setCollisionBetween(0, 100);
-
+    // debug graphics for tilemap collisions
+    /*const debugGraphics = this.add.graphics().setAlpha(0.75);
+    worldLayer.renderDebug(debugGraphics, {
+        tileColor: null, // Color of non-colliding tiles
+        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });*/
 
 
     // enable collision between platforms and player
-    this.physics.add.collider(player1, platforms);
-    this.physics.add.collider(player2, platforms);
-    this.physics.add.collider(player1, layer);
-    this.physics.add.collider(player2, layer);
+    this.physics.add.collider(player1, worldLayer);
+    this.physics.add.collider(player2, worldLayer);
     // listen to player to player events
     this.physics.add.collider(player1, player2, playersCollided, null, this);
 
@@ -169,11 +164,16 @@ function create ()
 
     // cursors for player2
     cursors2 = this.input.keyboard.addKeys(
-        {up:Phaser.Input.Keyboard.KeyCodes.W,
-        down:Phaser.Input.Keyboard.KeyCodes.S,
-        left:Phaser.Input.Keyboard.KeyCodes.A,
-        right:Phaser.Input.Keyboard.KeyCodes.D});
+        {
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D
+        }
+    );
 
+    // enable camera
+    this.cameras.main.startFollow(player1);
 
 }
 
@@ -185,11 +185,11 @@ function playersCollided(playerA, playerB) {
     if (catcherIndex === 0) {
         catcherIndex = 1;
         player2Freeze = 3000;
-        this.time.delayedCall(3000, () => {player2Freeze = 0;}, [], this);
+        this.time.delayedCall(3000, () => { player2Freeze = 0; }, [], this);
     } else {
         catcherIndex = 0;
         player1Freeze = 3000;
-        this.time.delayedCall(3000, () => {player1Freeze = 0;}, [], this);
+        this.time.delayedCall(3000, () => { player1Freeze = 0; }, [], this);
     }
 }
 
