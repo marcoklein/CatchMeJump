@@ -83,10 +83,10 @@ function create() {
 
     // create player
     player1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
-    //player1.setCollideWorldBounds(true);
+    player1.setCollideWorldBounds(true);
 
     player2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
-    //player2.setCollideWorldBounds(true);
+    player2.setCollideWorldBounds(true);
 
 
     // load player animations
