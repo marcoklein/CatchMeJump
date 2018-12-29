@@ -179,7 +179,7 @@ function create() {
 
     // set bounds
     this.physics.world.setBounds(0, 0, 1400, 1400);
-    //this.cameras.main.setBounds(0, 0, 1400, 1400);
+    //this.cameras.main.setBounds(-200, -200, 1600, 1600);
 
 
     // ensure game size is set properly
@@ -215,7 +215,8 @@ function playersCollided(playerA, playerB) {
  */
 function updateCameraPosition(cam) {
     // find center point of all players
-    let camOffset = 500;
+    const CAM_OFFSET = 600;
+    const MIN_OFFSET = 400;
 
     // determine player bounds (area all players lay in)
     var playerBounds = {
@@ -224,10 +225,10 @@ function updateCameraPosition(cam) {
         x2: 0,
         y2: 0,
         get width() {
-            return Math.max(this.x2 - this.x1, 300) + camOffset;
+            return Math.max(this.x2 - this.x1, MIN_OFFSET) + CAM_OFFSET;
         },
         get height() {
-            return Math.max(this.y2 - this.y1, 300) + camOffset;
+            return Math.max(this.y2 - this.y1, MIN_OFFSET) + CAM_OFFSET;
         }
     }
     if (player1.x < player2.x) {
