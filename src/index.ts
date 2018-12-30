@@ -414,12 +414,16 @@ function playersCollided(playerA: any, playerB: any) {
         // promote playerB as catcher
         playerB.isCatcher = true;
         playerB.isFrozen = true;
+        // attach catcher effect to playerB
+        catcherEmitter.startFollow(playerB.sprite);
         this.time.delayedCall(3000, () => { playerB.isFrozen = false; }, [], this);
     } else if (playerB.isCatcher) {
         playerB.isCatcher = false;
         // promote playerA as catcher
         playerA.isCatcher = true;
         playerA.isFrozen = true;
+        // attach catcher effect to playerA
+        catcherEmitter.startFollow(playerA.sprite);
         this.time.delayedCall(3000, () => { playerA.isFrozen = false; }, [], this);
     }
 }
@@ -486,13 +490,14 @@ function updateCameraPosition(cam) {
 }
 
 function update() {
+    // update players
     players.forEach(player => {
         player.update(this);
     });
+    updateCameraPosition(this.cameras.main);
 
     // find catcher
-    let catcher = _.find(players, player => {return player.isCatcher});
-    catcherEmitter.setPosition(catcher.sprite.x, catcher.sprite.y);
+    //let catcher = _.find(players, player => {return player.isCatcher});
+    //catcherEmitter.setPosition(catcher.sprite.x, catcher.sprite.y);
 
-    updateCameraPosition(this.cameras.main);
 }
