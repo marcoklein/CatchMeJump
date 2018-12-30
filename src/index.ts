@@ -5,6 +5,7 @@ import * as _ from 'underscore';
 
 import { GameScene } from './GameScene';
 import { HudScene } from './HudScene';
+import { MainScene } from './MainScene';
 
 
 
@@ -22,7 +23,7 @@ var config = {
             //debug: true
         }
     },
-    scene: [GameScene, HudScene],
+    scene: [MainScene],
     input: {
         gamepad: true
     }

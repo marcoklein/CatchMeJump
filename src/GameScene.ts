@@ -239,7 +239,10 @@ export class GameScene extends Phaser.Scene {
     // effect that marks catcher
     catcherEmitter = null;
 
-    remainingGameTime = 300 * 1000;
+    remainingGameTime = 5 * 1000;
+
+    // index of loaded map
+    mapIndex: Number = -1;
 
     constructor() {
         super({ key: 'GameScene', active: true });
@@ -259,12 +262,17 @@ export class GameScene extends Phaser.Scene {
         let maps = [
             '/assets/tilemaps/marcs_world.json',
             '/assets/tilemaps/standard.json',
-            '/assets/tilemaps/flat.json'
+            '/assets/tilemaps/flat.json',
+            '/assets/tilemaps/catchmejump1.json',
+            '/assets/tilemaps/catchmejump2.json',
+            '/assets/tilemaps/catchmejump3.json',
+            '/assets/tilemaps/catchmejump4.json',
         ];
         // load a random map
-        let loadedMap = maps[_.random(maps.length - 1)];
-        console.log('Loading map: ' + loadedMap);
-        this.load.tilemapTiledJSON("map", loadedMap);
+        this.mapIndex = _.random(maps.length - 1);
+        maps.forEach((mapKey, index) => {
+            this.load.tilemapTiledJSON("map_" + index, mapKey);
+        });
 
     }
 
@@ -286,7 +294,7 @@ export class GameScene extends Phaser.Scene {
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
-        const map = this.make.tilemap({key: 'map'});
+        const map = this.make.tilemap({key: 'map_' + this.mapIndex});
         const tileset = map.addTilesetImage('base_platformer', 'base_tiles');
     
         // Parameters: layer name (or index) from Tiled, tileset, x, y
@@ -502,6 +510,7 @@ export class GameScene extends Phaser.Scene {
             this.updateCameraPosition(this.cameras.main);
         } else {
             // game finished - do nothing
+            this.scene.pause();
         }
 
     }

@@ -1,6 +1,7 @@
 
 import * as Phaser from 'phaser';
 import { GameScene } from './GameScene';
+import { MainScene } from './MainScene';
 
 export class HudScene extends Phaser.Scene {
 
@@ -90,6 +91,16 @@ export class HudScene extends Phaser.Scene {
             this.input.keyboard.on('keydown_A', () => {
                 console.log('new game')
                 // restart game
+                this.scene.remove('GameScene');
+                this.scene.remove('HudScene');
+
+                this.scene.start('MainScene');
+                //this.scene.add('GameScene', GameScene, true);
+                //this.scene.add('HudScene', HudScene, true);
+                //this.scene.add('MainScene', MainScene, true);
+                //this.gameScene.scene.restart();
+                //this.gameScene.scene.restart(this.game.config);
+                //this.scene.launch();//(new GameScene());
                 //this.gameScene.scene.restart();
                 //this.scene.restart();
             });
