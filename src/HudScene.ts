@@ -21,7 +21,7 @@ export class HudScene extends Phaser.Scene {
 
     preload() {
         // load players
-        this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
+        //this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
     }
 
     create() {
@@ -48,6 +48,7 @@ export class HudScene extends Phaser.Scene {
         });
     }
 
+    scalefactor = 0.5;
     update() {
         // position time text at top right
         this.timeText.x = this.game.canvas.width - this.timeText.width - 10;
@@ -60,18 +61,19 @@ export class HudScene extends Phaser.Scene {
             let graphics = this.add.graphics(); // adds to the world stage
             graphics.fillStyle(0xDDDDDD, 0.7);
             //graphics.lineStyle(2, 0xD0D, 1);
-            graphics.fillRect(5, 5, 150, 50 * this.gameScene.players.length + 10);
+            graphics.fillRect(5, 5, this.scalefactor * 120, this.scalefactor * 40 * this.gameScene.players.length + 10);
             statsPanel.add(graphics);
 
             // create player stats
             this.gameScene.players.forEach((player, index) => {
-                let badge = this.add.image(10, 10 + 50 * index, 'players', player.animationPrefix + '_badge2');
+                let badge = this.add.image(this.scalefactor * 10, this.scalefactor * 10 + this.scalefactor * 50 * index, 'players', player.animationPrefix + '_badge2');
+                badge.setScale(this.scalefactor);
                 // move badge origin
                 badge.setOrigin(0);
                 // display score next to badge
-                let statText = this.add.text(15 + badge.width, 10 + 50 * index + badge.height / 2, 'Player' + (index + 1), { font: '32px Arial', fill: '#222'});
+                let statText = this.add.text(10 + badge.width * badge.scaleX, 10 + this.scalefactor * 50 * index + badge.height * badge.scaleY / 2, 'Player' + (index + 1), { font: '16px Arial', fill: '#222'});
                 statText.setOrigin(0);
-                statText.y -= statText.height / 2;
+                statText.y -= statText.height * 0.75;
                 this.playerStats.push(statText);
             });
         }

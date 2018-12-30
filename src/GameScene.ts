@@ -262,7 +262,9 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/flat.json'
         ];
         // load a random map
-        this.load.tilemapTiledJSON("map", maps[_.random(maps.length)]);
+        let loadedMap = maps[_.random(maps.length - 1)];
+        console.log('Loading map: ' + loadedMap);
+        this.load.tilemapTiledJSON("map", loadedMap);
 
     }
 
