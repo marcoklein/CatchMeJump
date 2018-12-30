@@ -13,6 +13,8 @@ export class HudScene extends Phaser.Scene {
 
     playerStats: Phaser.GameObjects.Text[] = [];
 
+    gameFinishedText: Phaser.GameObjects.Text;
+
     constructor() {
         super({ key: 'HudScene', active: true });
     }
@@ -28,7 +30,10 @@ export class HudScene extends Phaser.Scene {
         
         
         this.timeText = this.add.text(this.game.canvas.width / 2, 10, '300s', { font: '32px Arial', fill: '#DDD' });
-        
+        this.gameFinishedText = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, 'Game Finished!', { font: '64px Arial', fill: '#DDD'});
+        this.gameFinishedText.setOrigin(0.5, 0.5);
+        this.gameFinishedText.visible = false;
+
         // load game scene to display player information
         this.gameScene = <GameScene> this.game.scene.getScene('GameScene');
 
@@ -49,16 +54,43 @@ export class HudScene extends Phaser.Scene {
         this.timeText.text = Math.round(this.gameScene.remainingGameTime / 1000) + 's';
 
         if (this.playerStats.length === 0) {
+            // create a group for our graphics
+            let statsPanel = this.add.group();
+            // created on the world
+            let graphics = this.add.graphics(); // adds to the world stage
+            graphics.fillStyle(0xDDDDDD, 0.7);
+            //graphics.lineStyle(2, 0xD0D, 1);
+            graphics.fillRect(5, 5, 150, 50 * this.gameScene.players.length + 10);
+            statsPanel.add(graphics);
+
             // create player stats
             this.gameScene.players.forEach((player, index) => {
-                this.add.image(10, 10 + 80 * index, 'players', 'alienBlue_badge1');
-                let statText = this.add.text(10, 10 + 80 * index, 'Player' + (index + 1), { font: '32px Arial', fill: '#DDD'});
+                let badge = this.add.image(10, 10 + 50 * index, 'players', player.animationPrefix + '_badge2');
+                // move badge origin
+                badge.setOrigin(0);
+                // display score next to badge
+                let statText = this.add.text(15 + badge.width, 10 + 50 * index + badge.height / 2, 'Player' + (index + 1), { font: '32px Arial', fill: '#222'});
+                statText.setOrigin(0);
+                statText.y -= statText.height / 2;
                 this.playerStats.push(statText);
             });
         }
         // update player scores
         this.gameScene.players.forEach((player, index) => {
-            this.playerStats[index].text = 'Player ' + (index + 1) + '\n' + Math.round(player.score / 1000);
+            this.playerStats[index].text = '' + Math.round(player.score / 1000);
         });
+
+        // if time is up, show final stats!
+        if (this.gameScene.remainingGameTime <= 0) {
+            this.gameFinishedText.x = this.game.canvas.width / 2;
+            this.gameFinishedText.y = this.game.canvas.height / 2
+            this.gameFinishedText.visible = true;
+            this.input.keyboard.on('keydown_A', () => {
+                console.log('new game')
+                // restart game
+                //this.gameScene.scene.restart();
+                //this.scene.restart();
+            });
+        }
     }
 }

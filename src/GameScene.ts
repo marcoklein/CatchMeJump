@@ -489,18 +489,18 @@ export class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-
-        this.remainingGameTime -= delta;
-
-        // update players
-        this.players.forEach(player => {
-            player.update(time, delta, this);
-        });
-        this.updateCameraPosition(this.cameras.main);
-
-        // find catcher
-        //let catcher = _.find(players, player => {return player.isCatcher});
-        //this.catcherEmitter.setPosition(catcher.sprite.x, catcher.sprite.y);
+        if (this.remainingGameTime > 0) {
+            // game is running
+            this.remainingGameTime -= delta;
+            // update players
+            this.players.forEach(player => {
+                player.update(time, delta, this);
+            });
+            // update camera
+            this.updateCameraPosition(this.cameras.main);
+        } else {
+            // game finished - do nothing
+        }
 
     }
 
