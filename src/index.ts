@@ -51,6 +51,7 @@ class GamepadController extends InputController {
         }
 
         let gamepad = input.gamepad.getPad(this.padIndex);
+        console.warn('No Gamepad at index %i found!', this.padIndex);
         // handle player movement
         if (gamepad && gamepad.axes[0].value < -0.1) {
             // move left
