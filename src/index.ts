@@ -108,6 +108,11 @@ class Player {
     // actions
     action1Cooldown: boolean = false;
 
+    // jumps in air
+    jumpsInAir: number = 0;
+    maxJumpsInAir: number = 1;
+    jumpPerformed: boolean = false;
+
     animationKeys: {
         walk: string,
         idle: string,
@@ -206,10 +211,28 @@ class Player {
                 }
             }
 
+            // reset jumps in air if on floor
+            if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                this.jumpsInAir = 0;
+            }
             // perform jump
-            if (this.inputController.actions.jump && (this.sprite.body.onFloor() || this.sprite.body.touching.down)) {
-                this.sprite.setVelocityY(-660 * this.speed);
-                this.sprite.anims.play(this.animationKeys.jump);
+            // jump performed "entprellt" the jump action - otherwise jumps will be executed
+            // all at once
+            if (this.inputController.actions.jump) {
+                if (!this.jumpPerformed) {
+                    this.jumpPerformed = true;
+                    if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                        this.sprite.setVelocityY(-500 * this.speed);
+                        this.sprite.anims.play(this.animationKeys.jump);
+                    } else if (this.jumpsInAir < this.maxJumpsInAir) {
+                        // perform air jump
+                        this.jumpsInAir++;
+                        this.sprite.setVelocityY(-500 * this.speed);
+                        this.sprite.anims.play(this.animationKeys.jump);
+                    }
+                }
+            } else {
+                this.jumpPerformed = false;
             }
         } else {
             this.sprite.setVelocityX(0);
