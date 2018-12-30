@@ -11,7 +11,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 900 },
-            //debug: true
+            debug: true
         }
     },
     scene: {
@@ -281,8 +281,6 @@ function create() {
     var particles = this.add.particles('particle_blue');
 
     catcherEmitter = particles.createEmitter();
-
-    catcherEmitter.setPosition(500, 300);
     catcherEmitter.setScale(0.5, 0.5);
     catcherEmitter.setSpeed(50);
     catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
@@ -317,18 +315,21 @@ function create() {
     // add first player
     let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
     playerSprite1.setCollideWorldBounds(true);
+    playerSprite1.setSize(64, 88, true);
 
-    //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-    let player1InputController = new GamepadController(0);
+    let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+    //let player1InputController = new GamepadController(0);
 
     let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
     players.push(player1);
     // first player is initial catcher
     player1.isCatcher = true;
+    catcherEmitter.startFollow(player1.sprite);
 
     // add second player
     let playerSprite2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
     playerSprite2.setCollideWorldBounds(true);
+    playerSprite1.setSize(64, 88, true);
 
     /*let player2InputController = new KeyboardController(
         this.input.keyboard.addKeys(
@@ -347,6 +348,7 @@ function create() {
 
     let playerSprite3 = this.physics.add.sprite(800, 300, 'players', 'alienPink_stand');
     playerSprite3.setCollideWorldBounds(true);
+    playerSprite1.setSize(64, 88, true);
 
     let player3InputController = new KeyboardController(
         this.input.keyboard.addKeys(
@@ -370,19 +372,19 @@ function create() {
 
 
     // enable collision between platforms and player
-    this.physics.add.collider(players[0].sprite, worldLayer);
-    this.physics.add.collider(players[1].sprite, worldLayer);
-    /*for (let i = 0; i < players.length; i++) {
+    players.forEach(player => {
+        this.physics.add.collider(player.sprite, worldLayer);
+    });
+    // listen to player to player events
+    for (let i = 0; i < players.length; i++) {
         for (let j = i; j < players.length; j++) {
             if (i != j) {
-                this.physics.add.collider(players[i], players[j]);
+                this.physics.add.collider(players[i].sprite, players[j].sprite, playersCollided, null, this);
             }
         }
-    }*/
+    }
 
 
-    // listen to player to player events
-    this.physics.add.collider(players[0].sprite, players[1].sprite, playersCollided, null, this);
 
     // set bounds
     this.physics.world.setBounds(0, 0, 1400, 1400);
@@ -438,10 +440,10 @@ function updateCameraPosition(cam) {
 
     // determine player bounds (area all players lay in)
     var playerBounds = {
-        x1: 0,
-        y1: 0,
-        x2: 0,
-        y2: 0,
+        x1: null,
+        y1: null,
+        x2: null,
+        y2: null,
         get width() {
             return Math.max(this.x2 - this.x1, MIN_OFFSET) + CAM_OFFSET;
         },
@@ -449,24 +451,25 @@ function updateCameraPosition(cam) {
             return Math.max(this.y2 - this.y1, MIN_OFFSET) + CAM_OFFSET;
         }
     }
-    if (players[0].sprite.x < players[1].sprite.x) {
-        // player 1 is left
-        playerBounds.x1 = players[0].sprite.x;
-        playerBounds.x2 = players[1].sprite.x;
-    } else {
-        // player 2 is left or on equal x position
-        playerBounds.x1 = players[1].sprite.x;
-        playerBounds.x2 = players[0].sprite.x;
-    }
-    if (players[0].sprite.y < players[1].sprite.y) {
-        // player 1 is below player2
-        playerBounds.y1 = players[0].sprite.y;
-        playerBounds.y2 = players[1].sprite.y;
-    } else {
-        // player 2 is below or on equal height
-        playerBounds.y1 = players[1].sprite.y;
-        playerBounds.y2 = players[0].sprite.y;
-    }
+    // determine edges of player area
+    players.forEach(player => {
+        if (playerBounds.x1 === null || player.sprite.x < playerBounds.x1) {
+            // player is further to the left
+            playerBounds.x1 = player.sprite.x;
+        }
+        if (playerBounds.x2 === null || player.sprite.x > playerBounds.x2) {
+            // player is further to the right
+            playerBounds.x2 = player.sprite.x;
+        }
+        if (playerBounds.y1 === null || player.sprite.y < playerBounds.y1) {
+            // player is further to the top
+            playerBounds.y1 = player.sprite.y;
+        }
+        if (playerBounds.y2 === null || player.sprite.y > playerBounds.y2) {
+            // player is further to the bottom
+            playerBounds.y2 = player.sprite.y;
+        }
+    });
 
     // calculate center point
     cam.pan(
