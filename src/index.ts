@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import * as _ from 'underscore';
 
 var config = {
     type: Phaser.AUTO,
@@ -23,29 +24,171 @@ var config = {
     }
 };
 
+abstract class InputController {
+    actions: {
+        left: boolean;
+        right: boolean;
+        jump: boolean;
+    }
+
+    abstract update(input);
+}
+
+class GamepadController extends InputController {
+    padIndex: Number;
+
+    constructor(padIndex: Number) {
+        super();
+        this.padIndex = padIndex;
+    }
+
+    update(input) {
+        // reset movements
+        this.actions = {
+            left: false,
+            right: false,
+            jump: false
+        }
+
+        let gamepad = input.gamepad.getPad(this.padIndex);
+        // handle player movement
+        if (gamepad && gamepad.axes[0].value < -0.1) {
+            // move left
+            this.actions.left = true;
+        } else if (gamepad && gamepad.axes[0].value > 0.1) {
+            // move right
+            this.actions.right = true;
+        }
+        // perform jump
+        if (gamepad && gamepad.buttons[0].value === 1) {
+            this.actions.jump = true;
+        }
+    }
+}
+
+class KeyboardController extends InputController {
+    cursors: any;
+
+    constructor(cursors) {
+        super();
+        this.cursors = cursors;
+    }
+
+    update(input) {
+        // reset movements
+        this.actions = {
+            left: this.cursors.left.isDown,
+            right: this.cursors.right.isDown,
+            jump: this.cursors.up.isDown
+        }
+    }
+}
+
 class Player {
-    catcher: Boolean;
-    freeze: Boolean;
-    cursors: null;
+    isCatcher: Boolean;
+    isFrozen: Boolean; // true if player cant move
+    inputController: InputController;
+    sprite: any = null; // sprite player controls
+    /**
+     * Determines animation names.
+     */
+    animationPrefix: string;
+
+    animationKeys: {
+        walk: string,
+        idle: string,
+        jump: string,
+        hurt: string
+    };
+    
+    constructor(inputController: InputController, sprite: any, animationPrefix: string) {
+        this.inputController = inputController;
+        this.sprite = sprite;
+        this.animationPrefix = animationPrefix;
+        this.animationKeys = {
+            walk: this.animationPrefix + '_walk',
+            idle: this.animationPrefix + '_idle',
+            jump: this.animationPrefix + '_jump',
+            hurt: this.animationPrefix + '_hurt'
+        }
+    }
+
+    createAnimations(anims: any) {
+        console.log(this.animationKeys);
+        console.log(this.animationPrefix);
+        anims.create({
+            key: this.animationKeys.walk,
+            frames: anims.generateFrameNames('players', { prefix: (this.animationPrefix + '_walk'), start: 1, end: 2 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        anims.create({
+            key: this.animationKeys.idle,
+            frames: [{ key: 'players', frame: (this.animationPrefix + '_stand') }],
+            frameRate: 10
+        });
+        anims.create({
+            key: this.animationKeys.jump,
+            frames: [{ key: 'players', frame: (this.animationPrefix + '_jump') }],
+            frameRate: 10
+        });
+        anims.create({
+            key: this.animationKeys.hurt,
+            frames: [{ key: 'players', frame: (this.animationPrefix + '_hurt') }],
+            frameRate: 10
+        });
+    }
+
+    update(input) {
+        this.inputController.update(input);
+        // handle player movement
+        if (!this.isFrozen) {
+            if (this.inputController.actions.left) {
+                // move left
+                this.sprite.setVelocityX(-320);
+                if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                    // play walk animation when on ground
+                    this.sprite.anims.play(this.animationKeys.walk, true);
+                }
+                this.sprite.flipX = true;
+            } else if (this.inputController.actions.right) {
+                // move right
+                this.sprite.setVelocityX(320);
+                if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                    // play walk animation when on ground
+                    this.sprite.anims.play(this.animationKeys.walk, true);
+                }
+                this.sprite.flipX = false;
+            } else {
+                // stand still
+                this.sprite.setVelocityX(0);
+                if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                    // play idle animation when on ground
+                    this.sprite.anims.play(this.animationKeys.idle);
+                } else {
+                    // play jump animation when in air
+                    this.sprite.anims.play(this.animationKeys.jump);
+                }
+            }
+
+            // perform jump
+            if (this.inputController.actions.jump && (this.sprite.body.onFloor() || this.sprite.body.touching.down)) {
+                this.sprite.setVelocityY(-660);
+                this.sprite.anims.play(this.animationKeys.jump);
+            }
+        } else {
+            this.sprite.setVelocityX(0);
+            this.sprite.anims.play(this.animationKeys.hurt);
+        }
+    }
 }
 
-class World {
-    players: Player[] = [];
-}
-
+// phaser game object
 var game = new Phaser.Game(config);
 
-let world = null;
+// list of players
+let players: Player[] = [];
 
-var player1 = null;
-var player2 = null;
-var player1Freeze = 0;
-var player2Freeze = 0;
-var cursors1 = null;
-var cursors2 = null;
-let gamepad = null;
-
-var catcherIndex = 0; // 0 means player 1 is catcher, 1 means player 2 is catcher...
 var catcherEmitter = null;
 
 function setCatcher() {
@@ -81,57 +224,55 @@ function create() {
     catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
 
 
-    // create player
-    player1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
-    player1.setCollideWorldBounds(true);
+    // create players
+    // add first player
+    let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
+    playerSprite1.setCollideWorldBounds(true);
 
-    player2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
-    player2.setCollideWorldBounds(true);
+    let player1 = new Player(new KeyboardController(this.input.keyboard.createCursorKeys()), playerSprite1, 'alienGreen');
+    players.push(player1);
+    // first player is initial catcher
+    player1.isCatcher = true;
+
+    // add second player
+    let playerSprite2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
+    playerSprite2.setCollideWorldBounds(true);
+
+    let player2InputController = new KeyboardController(
+        this.input.keyboard.addKeys(
+            {
+                up: Phaser.Input.Keyboard.KeyCodes.W,
+                down: Phaser.Input.Keyboard.KeyCodes.S,
+                left: Phaser.Input.Keyboard.KeyCodes.A,
+                right: Phaser.Input.Keyboard.KeyCodes.D
+            }
+        )
+    );
+
+    let player2 = new Player(player2InputController, playerSprite2, 'alienBlue');
+    players.push(player2);
+
+    let playerSprite3 = this.physics.add.sprite(800, 300, 'players', 'alienPink_stand');
+    playerSprite3.setCollideWorldBounds(true);
+
+    let player3InputController = new KeyboardController(
+        this.input.keyboard.addKeys(
+            {
+                up: Phaser.Input.Keyboard.KeyCodes.Z,
+                down: Phaser.Input.Keyboard.KeyCodes.H,
+                left: Phaser.Input.Keyboard.KeyCodes.G,
+                right: Phaser.Input.Keyboard.KeyCodes.J
+            }
+        )
+    );
+
+    let player3 = new Player(player3InputController, playerSprite3, 'alienPink');
+    players.push(player3);
 
 
     // load player animations
-    this.anims.create({
-        key: 'player1Walk',
-        frames: this.anims.generateFrameNames('players', { prefix: 'alienGreen_walk', start: 1, end: 2 }),
-        frameRate: 10,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'player1Idle',
-        frames: [{ key: 'players', frame: 'alienGreen_stand' }],
-        frameRate: 10
-    });
-    this.anims.create({
-        key: 'player1Jump',
-        frames: [{ key: 'players', frame: 'alienGreen_jump' }],
-        frameRate: 10
-    });
-    this.anims.create({
-        key: 'player1Hurt',
-        frames: [{ key: 'players', frame: 'alienGreen_hurt' }],
-        frameRate: 10
-    });
-
-    this.anims.create({
-        key: 'player2Walk',
-        frames: this.anims.generateFrameNames('players', { prefix: 'alienBlue_walk', start: 1, end: 2 }),
-        frameRate: 10,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'player2Idle',
-        frames: [{ key: 'players', frame: 'alienBlue_stand' }],
-        frameRate: 10
-    });
-    this.anims.create({
-        key: 'player2Jump',
-        frames: [{ key: 'players', frame: 'alienBlue_jump' }],
-        frameRate: 10
-    });
-    this.anims.create({
-        key: 'player2Hurt',
-        frames: [{ key: 'players', frame: 'alienBlue_hurt' }],
-        frameRate: 10
+    players.forEach(player => {
+        player.createAnimations(this.anims);
     });
 
 
@@ -159,23 +300,19 @@ function create() {
 
 
     // enable collision between platforms and player
-    this.physics.add.collider(player1, worldLayer);
-    this.physics.add.collider(player2, worldLayer);
-    // listen to player to player events
-    this.physics.add.collider(player1, player2, playersCollided, null, this);
-
-    // init keyboard
-    cursors1 = this.input.keyboard.createCursorKeys();
-
-    // cursors for player2
-    cursors2 = this.input.keyboard.addKeys(
-        {
-            up: Phaser.Input.Keyboard.KeyCodes.W,
-            down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D
+    this.physics.add.collider(players[0].sprite, worldLayer);
+    this.physics.add.collider(players[1].sprite, worldLayer);
+    /*for (let i = 0; i < players.length; i++) {
+        for (let j = i; j < players.length; j++) {
+            if (i != j) {
+                this.physics.add.collider(players[i], players[j]);
+            }
         }
-    );
+    }*/
+
+
+    // listen to player to player events
+    this.physics.add.collider(players[0].sprite, players[1].sprite, playersCollided, null, this);
 
     // set bounds
     this.physics.world.setBounds(0, 0, 1400, 1400);
@@ -194,19 +331,23 @@ function create() {
 
 }
 
-function playersCollided(playerA, playerB) {
-    if (player2Freeze || player1Freeze) {
+function playersCollided(playerA: any, playerB: any) {
+    if (playerA.isFrozen || playerB.isFrozen) {
         // do not allow catches during freeze time
         return;
     }
-    if (catcherIndex === 0) {
-        catcherIndex = 1;
-        player2Freeze = 3000;
-        this.time.delayedCall(3000, () => { player2Freeze = 0; }, [], this);
-    } else {
-        catcherIndex = 0;
-        player1Freeze = 3000;
-        this.time.delayedCall(3000, () => { player1Freeze = 0; }, [], this);
+    if (playerA.isCatcher) {
+        playerA.isCatcher = false;
+        // promote playerB as catcher
+        playerB.isCatcher = true;
+        playerB.isFrozen = true;
+        this.time.delayedCall(3000, () => { playerB.isFrozen = false; }, [], this);
+    } else if (playerB.isCatcher) {
+        playerB.isCatcher = false;
+        // promote playerA as catcher
+        playerA.isCatcher = true;
+        playerA.isFrozen = true;
+        this.time.delayedCall(3000, () => { playerA.isFrozen = false; }, [], this);
     }
 }
 
@@ -231,23 +372,23 @@ function updateCameraPosition(cam) {
             return Math.max(this.y2 - this.y1, MIN_OFFSET) + CAM_OFFSET;
         }
     }
-    if (player1.x < player2.x) {
+    if (players[0].sprite.x < players[1].sprite.x) {
         // player 1 is left
-        playerBounds.x1 = player1.x;
-        playerBounds.x2 = player2.x;
+        playerBounds.x1 = players[0].sprite.x;
+        playerBounds.x2 = players[1].sprite.x;
     } else {
         // player 2 is left or on equal x position
-        playerBounds.x1 = player2.x;
-        playerBounds.x2 = player1.x;
+        playerBounds.x1 = players[1].sprite.x;
+        playerBounds.x2 = players[0].sprite.x;
     }
-    if (player1.y < player2.y) {
+    if (players[0].sprite.y < players[1].sprite.y) {
         // player 1 is below player2
-        playerBounds.y1 = player1.y;
-        playerBounds.y2 = player2.y;
+        playerBounds.y1 = players[0].sprite.y;
+        playerBounds.y2 = players[1].sprite.y;
     } else {
         // player 2 is below or on equal height
-        playerBounds.y1 = player2.y;
-        playerBounds.y2 = player1.y;
+        playerBounds.y1 = players[1].sprite.y;
+        playerBounds.y2 = players[0].sprite.y;
     }
 
     // calculate center point
@@ -272,95 +413,13 @@ function updateCameraPosition(cam) {
 }
 
 function update() {
-    gamepad = this.input.gamepad.getPad(0);
-    // handle player movement
-    if (player1Freeze <= 0) {
-        if ((gamepad && gamepad.axes[0].value < -0.1) || cursors1.left.isDown) {
-            // move left
-            player1.setVelocityX(-320);
-            if (player1.body.onFloor() || player1.body.touching.down) {
-                // play walk animation when on ground
-                player1.anims.play('player1Walk', true);
-            }
-            player1.flipX = true;
-        } else if ((gamepad && gamepad.axes[0].value > 0.1) || cursors1.right.isDown) {
-            // move right
-            player1.setVelocityX(320);
-            if (player1.body.onFloor() || player1.body.touching.down) {
-                // play walk animation when on ground
-                player1.anims.play('player1Walk', true);
-            }
-            player1.flipX = false;
-        } else {
-            // stand still
-            player1.setVelocityX(0);
-            if (player1.body.onFloor() || player1.body.touching.down) {
-                // play idle animation when on ground
-                player1.anims.play('player1Idle');
-            } else {
-                // play jump animation when in air
-                player1.anims.play('player1Jump');
-            }
-        }
+    players.forEach(player => {
+        player.update(this.input);
+    });
 
-        // perform jump
-        if ((cursors1.up.isDown || (gamepad && gamepad.buttons[0].value === 1)) && (player1.body.onFloor() || player1.body.touching.down)) {
-            player1.setVelocityY(-660);
-            player1.anims.play('player1Jump');
-        }
-    } else {
-        player1.setVelocityX(0);
-        player1.anims.play('player1Hurt');
-    }
-
-
-    // handle player movement
-    if (player2Freeze <= 0) {
-        if (cursors2.left.isDown) {
-            // move left
-            player2.setVelocityX(-320);
-            if (player2.body.onFloor() || player2.body.touching.down) {
-                // play walk animation when on ground
-                player2.anims.play('player2Walk', true);
-            }
-            player2.flipX = true;
-        } else if (cursors2.right.isDown) {
-            // move right
-            player2.setVelocityX(320);
-            if (player2.body.onFloor() || player2.body.touching.down) {
-                // play walk animation when on ground
-                player2.anims.play('player2Walk', true);
-            }
-            player2.flipX = false;
-        } else {
-            // stand still
-            player2.setVelocityX(0);
-            if (player2.body.onFloor() || player2.body.touching.down) {
-                // play idle animation when on ground
-                player2.anims.play('player2Idle');
-            } else {
-                // play jump animation when in air
-                player2.anims.play('player2Jump');
-            }
-        }
-
-        // perform jump
-        if (cursors2.up.isDown && (player2.body.onFloor() || player2.body.touching.down)) {
-            player2.setVelocityY(-660);
-            player2.anims.play('player2Jump');
-        }
-    } else {
-        player2.setVelocityX(0);
-        player2.anims.play('player2Hurt');
-    }
-
-    // move catcher emitter
-    if (catcherIndex === 0) {
-        // player1 is catcher
-        catcherEmitter.setPosition(player1.x, player1.y);
-    } else {
-        catcherEmitter.setPosition(player2.x, player2.y);
-    }
+    // find catcher
+    let catcher = _.find(players, player => {return player.isCatcher});
+    catcherEmitter.setPosition(catcher.sprite.x, catcher.sprite.y);
 
     updateCameraPosition(this.cameras.main);
 }
