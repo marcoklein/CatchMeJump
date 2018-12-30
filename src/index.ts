@@ -332,6 +332,9 @@ function create() {
 }
 
 function playersCollided(playerA: any, playerB: any) {
+    // find catcher player object
+    playerA = _.find(players, player => {return player.sprite === playerA});
+    playerB = _.find(players, player => {return player.sprite === playerB});
     if (playerA.isFrozen || playerB.isFrozen) {
         // do not allow catches during freeze time
         return;
