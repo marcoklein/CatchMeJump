@@ -229,7 +229,10 @@ function create() {
     let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
     playerSprite1.setCollideWorldBounds(true);
 
-    let player1 = new Player(new KeyboardController(this.input.keyboard.createCursorKeys()), playerSprite1, 'alienGreen');
+    //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+    let player1InputController = new GamepadController(0);
+
+    let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
     players.push(player1);
     // first player is initial catcher
     player1.isCatcher = true;
@@ -238,7 +241,7 @@ function create() {
     let playerSprite2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
     playerSprite2.setCollideWorldBounds(true);
 
-    let player2InputController = new KeyboardController(
+    /*let player2InputController = new KeyboardController(
         this.input.keyboard.addKeys(
             {
                 up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -247,7 +250,8 @@ function create() {
                 right: Phaser.Input.Keyboard.KeyCodes.D
             }
         )
-    );
+    );*/
+    let player2InputController = new GamepadController(1);
 
     let player2 = new Player(player2InputController, playerSprite2, 'alienBlue');
     players.push(player2);
