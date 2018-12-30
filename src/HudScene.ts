@@ -13,6 +13,8 @@ export class HudScene extends Phaser.Scene {
 
     playerStats: Phaser.GameObjects.Text[] = [];
 
+    gameFinishedText: Phaser.GameObjects.Text;
+
     constructor() {
         super({ key: 'HudScene', active: true });
     }
@@ -28,7 +30,10 @@ export class HudScene extends Phaser.Scene {
         
         
         this.timeText = this.add.text(this.game.canvas.width / 2, 10, '300s', { font: '32px Arial', fill: '#DDD' });
-        
+        this.gameFinishedText = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, 'Game Finished!', { font: '64px Arial', fill: '#DDD'});
+        this.gameFinishedText.setOrigin(0.5, 0.5);
+        this.gameFinishedText.visible = false;
+
         // load game scene to display player information
         this.gameScene = <GameScene> this.game.scene.getScene('GameScene');
 
@@ -74,5 +79,18 @@ export class HudScene extends Phaser.Scene {
         this.gameScene.players.forEach((player, index) => {
             this.playerStats[index].text = '' + Math.round(player.score / 1000);
         });
+
+        // if time is up, show final stats!
+        if (this.gameScene.remainingGameTime <= 0) {
+            this.gameFinishedText.x = this.game.canvas.width / 2;
+            this.gameFinishedText.y = this.game.canvas.height / 2
+            this.gameFinishedText.visible = true;
+            this.input.keyboard.on('keydown_A', () => {
+                console.log('new game')
+                // restart game
+                //this.gameScene.scene.restart();
+                //this.scene.restart();
+            });
+        }
     }
 }
