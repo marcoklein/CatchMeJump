@@ -350,23 +350,23 @@ export class GameScene extends Phaser.Scene {
         let player2 = new Player(player2InputController, playerSprite2, 'alienBlue');
         this.players.push(player2);
 
-        /*let playerSprite3 = this.physics.add.sprite(800, 300, 'players', 'alienPink_stand');
+        let playerSprite3 = this.physics.add.sprite(800, 300, 'players', 'alienPink_stand');
         playerSprite3.setCollideWorldBounds(true);
         playerSprite3.setSize(56, 88);
 
         let player3InputController = new KeyboardController(
             this.input.keyboard.addKeys(
                 {
-                    up: Phaser.Input.Keyboard.KeyCodes.Z,
-                    down: Phaser.Input.Keyboard.KeyCodes.H,
-                    left: Phaser.Input.Keyboard.KeyCodes.G,
-                    right: Phaser.Input.Keyboard.KeyCodes.J
+                    up: Phaser.Input.Keyboard.KeyCodes.UP,
+                    down: Phaser.Input.Keyboard.KeyCodes.SPACE,
+                    left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+                    right: Phaser.Input.Keyboard.KeyCodes.RIGHT
                 }
             )
         );
 
         let player3 = new Player(player3InputController, playerSprite3, 'alienPink');
-        this.players.push(player3);*/
+        this.players.push(player3);
 
 
         // load player animations
