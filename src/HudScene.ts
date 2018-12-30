@@ -17,6 +17,11 @@ export class HudScene extends Phaser.Scene {
         super({ key: 'HudScene', active: true });
     }
 
+    preload() {
+        // load players
+        this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
+    }
+
     create() {
         //this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#555'});
         //let info = this.add.text(10, 10, 'Score: 0', { font: '48px Arial', fill: '#000000' });
@@ -46,6 +51,7 @@ export class HudScene extends Phaser.Scene {
         if (this.playerStats.length === 0) {
             // create player stats
             this.gameScene.players.forEach((player, index) => {
+                this.add.image(10, 10 + 80 * index, 'players', 'alienBlue_badge1');
                 let statText = this.add.text(10, 10 + 80 * index, 'Player' + (index + 1), { font: '32px Arial', fill: '#DDD'});
                 this.playerStats.push(statText);
             });
