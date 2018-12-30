@@ -255,7 +255,14 @@ export class GameScene extends Phaser.Scene {
 
         // load tilemap
         this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
-        this.load.tilemapTiledJSON("map", "/assets/tilemaps/flat.json");
+
+        let maps = [
+            '/assets/tilemaps/marcs_world.json',
+            '/assets/tilemaps/standard.json',
+            '/assets/tilemaps/flat.json'
+        ];
+        // load a random map
+        this.load.tilemapTiledJSON("map", maps[_.random(maps.length)]);
 
     }
 
@@ -302,9 +309,9 @@ export class GameScene extends Phaser.Scene {
         // add first player
         let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
         playerSprite1.setCollideWorldBounds(true);
-        playerSprite1.setSize(64, 88);
+        playerSprite1.setSize(56, 88);
 
-        //dlet player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+        //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
         let player1InputController = new GamepadController(0);
 
         let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
@@ -316,7 +323,7 @@ export class GameScene extends Phaser.Scene {
         // add second player
         let playerSprite2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
         playerSprite2.setCollideWorldBounds(true);
-        playerSprite2.setSize(64, 88);
+        playerSprite2.setSize(56, 88);
 
         /*let player2InputController = new KeyboardController(
             this.input.keyboard.addKeys(
@@ -335,7 +342,7 @@ export class GameScene extends Phaser.Scene {
 
         /*let playerSprite3 = this.physics.add.sprite(800, 300, 'players', 'alienPink_stand');
         playerSprite3.setCollideWorldBounds(true);
-        playerSprite3.setSize(64, 88);
+        playerSprite3.setSize(56, 88);
 
         let player3InputController = new KeyboardController(
             this.input.keyboard.addKeys(
