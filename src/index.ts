@@ -313,8 +313,8 @@ function create() {
     let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
     playerSprite1.setCollideWorldBounds(true);
 
-    let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-    //let player1InputController = new GamepadController(0);
+    //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+    let player1InputController = new GamepadController(0);
 
     let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
     players.push(player1);
