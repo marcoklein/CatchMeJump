@@ -197,7 +197,7 @@ class Player {
 
             // perform jump
             if (this.inputController.actions.jump && (this.sprite.body.onFloor() || this.sprite.body.touching.down)) {
-                this.sprite.setVelocityY(-660);
+                this.sprite.setVelocityY(-660 * this.speed);
                 this.sprite.anims.play(this.animationKeys.jump);
             }
         } else {
