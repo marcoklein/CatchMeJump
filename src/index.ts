@@ -112,6 +112,7 @@ class Player {
     jumpsInAir: number = 0;
     maxJumpsInAir: number = 1;
     jumpPerformed: boolean = false;
+    lastTimeOnGround: number = 0;
 
     animationKeys: {
         walk: string,
@@ -214,6 +215,10 @@ class Player {
             // reset jumps in air if on floor
             if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
                 this.jumpsInAir = 0;
+                this.lastTimeOnGround = 0;
+            } else {
+                // count frames till last time on ground to perform smoother jumps
+                this.lastTimeOnGround++;
             }
             // perform jump
             // jump performed "entprellt" the jump action - otherwise jumps will be executed
@@ -221,7 +226,7 @@ class Player {
             if (this.inputController.actions.jump) {
                 if (!this.jumpPerformed) {
                     this.jumpPerformed = true;
-                    if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                    if (this.lastTimeOnGround < 5 || this.sprite.body.onFloor() || this.sprite.body.touching.down) {
                         this.sprite.setVelocityY(-550 * this.speed);
                         this.sprite.anims.play(this.animationKeys.jump);
                     } else if (this.jumpsInAir < this.maxJumpsInAir) {
