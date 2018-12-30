@@ -153,7 +153,9 @@ class Player {
         });
     }
 
-    update(input, time) {
+    update(scene) {
+        let input = scene.input;
+        let time = scene.time;
         this.inputController.update(input);
         // handle player movement
         if (!this.isFrozen) {
@@ -161,9 +163,18 @@ class Player {
             if (!this.action1Cooldown && this.inputController.actions.action1) {
                 // activate speed boost
                 this.speed = 1.5;
-                time.delayedCall(1500, () => { this.speed = 1;}, [], this);
-                time.delayedCall(5000, () => { this.action1Cooldown = false; this.speed = 1;}, [], this);
+                this.action1Cooldown = true;
                 // play particle animation
+                var particles = scene.add.particles('particle_red');
+                let speedBoostEmitter = particles.createEmitter();
+                speedBoostEmitter.setPosition(0, 35);
+                speedBoostEmitter.setScale(0.5, 0.5);
+                speedBoostEmitter.setSpeed(50);
+                speedBoostEmitter.setBlendMode(Phaser.BlendModes.SCREEN);
+                speedBoostEmitter.startFollow(this.sprite);
+                speedBoostEmitter.z = -1;
+                time.delayedCall(1500, () => { this.speed = 1; particles.destroy(); }, [], this);
+                time.delayedCall(5000, () => { this.action1Cooldown = false; this.speed = 1;}, [], this);
             }
 
 
@@ -225,6 +236,7 @@ function preload() {
 
     // load particles
     this.load.image('particle_blue', 'assets/particles/blue.png');
+    this.load.image('particle_red', 'assets/particles/red.png');
 
     // load tilemap
     this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
@@ -246,6 +258,8 @@ function create() {
     catcherEmitter.setScale(0.5, 0.5);
     catcherEmitter.setSpeed(50);
     catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
+
+    
 
 
     // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
@@ -276,8 +290,8 @@ function create() {
     let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
     playerSprite1.setCollideWorldBounds(true);
 
-    //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-    let player1InputController = new GamepadController(0);
+    let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+    //let player1InputController = new GamepadController(0);
 
     let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
     players.push(player1);
@@ -445,7 +459,7 @@ function updateCameraPosition(cam) {
 
 function update() {
     players.forEach(player => {
-        player.update(this.input, this.time);
+        player.update(this);
     });
 
     // find catcher
