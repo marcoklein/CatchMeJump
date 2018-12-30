@@ -29,6 +29,7 @@ abstract class InputController {
         left: boolean;
         right: boolean;
         jump: boolean;
+        action1: boolean;
     }
 
     abstract update(input);
@@ -47,7 +48,8 @@ class GamepadController extends InputController {
         this.actions = {
             left: false,
             right: false,
-            jump: false
+            jump: false,
+            action1: false
         }
 
         let gamepad = input.gamepad.getPad(this.padIndex);
@@ -63,6 +65,10 @@ class GamepadController extends InputController {
         // perform jump
         if (gamepad && gamepad.buttons[0].value === 1) {
             this.actions.jump = true;
+        }
+        // perform action1
+        if (gamepad && gamepad.buttons[1].value === 1) {
+            this.actions.action1 = true;
         }
     }
 }
@@ -80,20 +86,27 @@ class KeyboardController extends InputController {
         this.actions = {
             left: this.cursors.left.isDown,
             right: this.cursors.right.isDown,
-            jump: this.cursors.up.isDown
+            jump: this.cursors.up.isDown,
+            action1: this.cursors.down.isDown
         }
     }
 }
 
 class Player {
-    isCatcher: Boolean;
-    isFrozen: Boolean; // true if player cant move
+    isCatcher: boolean;
+    isFrozen: boolean; // true if player cant move
     inputController: InputController;
     sprite: any = null; // sprite player controls
     /**
      * Determines animation names.
      */
     animationPrefix: string;
+
+    // player attributes
+    speed: number = 1;
+
+    // actions
+    action1Cooldown: boolean = false;
 
     animationKeys: {
         walk: string,
@@ -140,13 +153,23 @@ class Player {
         });
     }
 
-    update(input) {
+    update(input, time) {
         this.inputController.update(input);
         // handle player movement
         if (!this.isFrozen) {
+            // speed boost activated?
+            if (!this.action1Cooldown && this.inputController.actions.action1) {
+                // activate speed boost
+                this.speed = 1.5;
+                time.delayedCall(1500, () => { this.speed = 1;}, [], this);
+                time.delayedCall(5000, () => { this.action1Cooldown = false; this.speed = 1;}, [], this);
+                // play particle animation
+            }
+
+
             if (this.inputController.actions.left) {
                 // move left
-                this.sprite.setVelocityX(-320);
+                this.sprite.setVelocityX(-320 * this.speed);
                 if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
                     // play walk animation when on ground
                     this.sprite.anims.play(this.animationKeys.walk, true);
@@ -154,7 +177,7 @@ class Player {
                 this.sprite.flipX = true;
             } else if (this.inputController.actions.right) {
                 // move right
-                this.sprite.setVelocityX(320);
+                this.sprite.setVelocityX(320 * this.speed);
                 if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
                     // play walk animation when on ground
                     this.sprite.anims.play(this.animationKeys.walk, true);
@@ -205,7 +228,7 @@ function preload() {
 
     // load tilemap
     this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
-    this.load.tilemapTiledJSON("map", "/assets/tilemaps/standard.json");
+    this.load.tilemapTiledJSON("map", "/assets/tilemaps/flat.json");
 
 }
 
@@ -225,13 +248,36 @@ function create() {
     catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
 
 
+    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+    // Phaser's cache (i.e. the name you used in preload)
+    const map = this.make.tilemap({key: 'map'});
+    const tileset = map.addTilesetImage('base_platformer', 'base_tiles');
+  
+    // Parameters: layer name (or index) from Tiled, tileset, x, y
+    const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
+    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
+    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
+
+    // unwalkable tiles are marked as collidable
+    worldLayer.setCollisionByProperty({collides: true});
+
+    // debug graphics for tilemap collisions
+    /*const debugGraphics = this.add.graphics().setAlpha(0.75);
+    worldLayer.renderDebug(debugGraphics, {
+        tileColor: null, // Color of non-colliding tiles
+        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });*/
+
+
+
     // create players
     // add first player
     let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
     playerSprite1.setCollideWorldBounds(true);
 
-    //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-    let player1InputController = new GamepadController(0);
+    let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+    //let player1InputController = new GamepadController(0);
 
     let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
     players.push(player1);
@@ -279,29 +325,6 @@ function create() {
     players.forEach(player => {
         player.createAnimations(this.anims);
     });
-
-
-
-    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
-    // Phaser's cache (i.e. the name you used in preload)
-    const map = this.make.tilemap({key: 'map'});
-    const tileset = map.addTilesetImage('base_platformer', 'base_tiles');
-  
-    // Parameters: layer name (or index) from Tiled, tileset, x, y
-    const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
-    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
-    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
-
-    // unwalkable tiles are marked as collidable
-    worldLayer.setCollisionByProperty({collides: true});
-
-    // debug graphics for tilemap collisions
-    /*const debugGraphics = this.add.graphics().setAlpha(0.75);
-    worldLayer.renderDebug(debugGraphics, {
-        tileColor: null, // Color of non-colliding tiles
-        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-        faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-    });*/
 
 
     // enable collision between platforms and player
@@ -422,7 +445,7 @@ function updateCameraPosition(cam) {
 
 function update() {
     players.forEach(player => {
-        player.update(this.input);
+        player.update(this.input, this.time);
     });
 
     // find catcher
