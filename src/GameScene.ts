@@ -262,11 +262,14 @@ export class GameScene extends Phaser.Scene {
         let maps = [
             '/assets/tilemaps/marcs_world.json',
             '/assets/tilemaps/standard.json',
-            '/assets/tilemaps/flat.json'//,
-            //'/assets/tilemaps/catchmejump1.json',
-            //'/assets/tilemaps/catchmejump2.json',
-            //'/assets/tilemaps/catchmejump3.json',
-            //'/assets/tilemaps/catchmejump4.json',
+            '/assets/tilemaps/flat.json',
+            '/assets/tilemaps/catchmejump1.json',
+            '/assets/tilemaps/catchmejump2.json',
+            '/assets/tilemaps/catchmejump3.json',
+            '/assets/tilemaps/catchmejump4.json',
+            '/assets/tilemaps/superjump.json',
+            '/assets/tilemaps/mighty.json',
+            '/assets/tilemaps/megamap.json'
         ];
         // load a random map
         this.mapIndex = _.random(maps.length - 1);
@@ -391,7 +394,7 @@ export class GameScene extends Phaser.Scene {
 
 
         // set bounds
-        this.physics.world.setBounds(0, 0, 1400, 1400);
+        this.physics.world.setBounds(0, 0, map.width, map.height);
         //this.cameras.main.setBounds(-200, -200, 1600, 1600);
 
 
