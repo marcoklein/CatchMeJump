@@ -304,7 +304,7 @@ export class GameScene extends Phaser.Scene {
         playerSprite1.setCollideWorldBounds(true);
         playerSprite1.setSize(64, 88);
 
-        //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+        //dlet player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
         let player1InputController = new GamepadController(0);
 
         let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
