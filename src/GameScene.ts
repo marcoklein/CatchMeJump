@@ -113,7 +113,9 @@ export class GameScene extends Phaser.Scene {
 
         this.players.push(this.createPlayer(300, 300, 'alienGreen', player1InputController));
         this.players.push(this.createPlayer(500, 300, 'alienBlue', player2InputController));
-        this.players.push(this.createPlayer(800, 300, 'alienBeige', player3InputController));
+        this.players.push(this.createPlayer(700, 300, 'alienBeige', player3InputController));
+        this.players.push(this.createPlayer(900, 300, 'alienPink', player3InputController));
+        this.players.push(this.createPlayer(1100, 300, 'alienYellow', player3InputController));
 
     }
 

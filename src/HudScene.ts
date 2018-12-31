@@ -65,7 +65,7 @@ export class HudScene extends Phaser.Scene {
             let graphics = this.add.graphics(); // adds to the world stage
             graphics.fillStyle(0xDDDDDD, 0.7);
             //graphics.lineStyle(2, 0xD0D, 1);
-            graphics.fillRect(5, 5, this.scalefactor * 120, this.scalefactor * 40 * this.gameScene.players.length + 10);
+            graphics.fillRect(5, 5, this.scalefactor * 120, this.scalefactor * 50 * this.gameScene.players.length);
             statsPanel.add(graphics);
 
             // create player stats
