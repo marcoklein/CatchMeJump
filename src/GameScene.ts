@@ -15,9 +15,9 @@ abstract class InputController {
 }
 
 class GamepadController extends InputController {
-    padIndex: Number;
+    padIndex: number;
 
-    constructor(padIndex: Number) {
+    constructor(padIndex: number) {
         super();
         this.padIndex = padIndex;
     }
@@ -139,7 +139,7 @@ class Player {
         });
     }
 
-    update(totalTime, delta, scene) {
+    update(totalTime: number, delta: number, scene: GameScene) {
         let input = scene.input;
         let sceneTime = scene.time;
         this.inputController.update(input);
@@ -152,19 +152,18 @@ class Player {
                 this.action1Cooldown = true;
                 // play particle animation
                 var particles = scene.add.particles('particle_red');
-                let speedBoostEmitter = particles.createEmitter();
+                let speedBoostEmitter = particles.createEmitter({});
                 speedBoostEmitter.setPosition(0, 35);
-                speedBoostEmitter.setScale(0.5, 0.5);
+                speedBoostEmitter.setScale(0.5);
                 speedBoostEmitter.setSpeed(50);
                 speedBoostEmitter.setBlendMode(Phaser.BlendModes.SCREEN);
                 speedBoostEmitter.startFollow(this.sprite);
-                speedBoostEmitter.z = -1;
                 sceneTime.delayedCall(1500, () => { this.speed = 1; particles.destroy(); }, [], this);
                 sceneTime.delayedCall(5000, () => {
                     this.action1Cooldown = false; this.speed = 1;
                     let speedBoostNotificationParticles = scene.add.particles('particle_red');
-                    let speedBoostNotification = speedBoostNotificationParticles.createEmitter();
-                    speedBoostNotification.setScale(0.5, 0.5);
+                    let speedBoostNotification = speedBoostNotificationParticles.createEmitter({});
+                    speedBoostNotification.setScale(0.5);
                     speedBoostNotification.setSpeed(300);
                     speedBoostNotification.setBlendMode(Phaser.BlendModes.ADD);
                     speedBoostNotification.startFollow(this.sprite);
@@ -237,6 +236,11 @@ class Player {
         if (!this.isCatcher) {
             this.score += delta;
         }
+
+        // check for world map interaction
+        if (scene.objectGroup && scene.physics.world.overlap(this.sprite, scene.objectGroup)) {
+            this.sprite.setVelocityY(-1800);
+        }
     }
 }
 
@@ -248,10 +252,12 @@ export class GameScene extends Phaser.Scene {
     // effect that marks catcher
     catcherEmitter = null;
 
-    remainingGameTime = 5 * 1000;
+    remainingGameTime = 5 * 60 * 1000;
 
     // index of loaded map
-    mapIndex: Number = -1;
+    mapIndex: number = -1;
+
+    objectGroup: any//Phaser.Physics.Arcade.StaticGroup = null;
 
     constructor() {
         super({ key: 'GameScene' });
@@ -274,7 +280,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image('request_tiles', 'assets/tiles/request.png');
 
         let maps = [
-            '/assets/tilemaps/marcs_world.json',
+            /*'/assets/tilemaps/marcs_world.json',
             '/assets/tilemaps/standard.json',
             '/assets/tilemaps/flat.json',
             '/assets/tilemaps/catchmejump1.json',
@@ -283,7 +289,7 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/catchmejump4.json',
             '/assets/tilemaps/superjump.json',
             '/assets/tilemaps/mighty.json',
-            '/assets/tilemaps/megamap.json',
+            '/assets/tilemaps/megamap.json',*/
             '/assets/tilemaps/spring.json'
         ];
         // load a random map
@@ -444,12 +450,28 @@ export class GameScene extends Phaser.Scene {
             this.cameras.main.setSize(window.innerWidth, window.innerHeight);
         });
 
-        /*objectLayer.setTileLocationCallback(0, 28, 10, 1, function() {
-            console.log('overlap');
-            playerSprite3.setVelocityY(-1000);
-        }, this);
 
-        this.physics.add.overlap(playerSprite3, objectLayer);*/
+        // enable special map objects if layer is available
+        if (objectLayer) {
+            // Create a physics group - useful for colliding the player against all the spikes
+            this.objectGroup = this.physics.add.staticGroup();
+
+            // Loop over each Tile and replace spikes (tile index 77) with custom sprites
+            objectLayer.forEachTile(tile => {
+                if (tile.index === 360) {
+                    // A sprite has its origin at the center, so place the sprite at the center of the tile
+                    const x = tile.getCenterX();
+                    const y = tile.getCenterY();
+                    const spike = this.objectGroup.create(x, y, 'spring');
+                    spike.width = tile.width;
+                    spike.height = tile.height;
+                    spike.visible = false;
+
+                    // And lastly, remove the spike tile from the layer
+                    //objectLayer.removeTileAt(tile.x, tile.y);
+                }
+            });
+        }
     }
 
     playersCollided(playerA: any, playerB: any) {
