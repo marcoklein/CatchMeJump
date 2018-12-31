@@ -62,13 +62,13 @@ export class GameScene extends Phaser.Scene {
         this.load.image('industrial_tiles', 'assets/tiles/industrial.png');
 
         let maps = [
-            /*'/assets/tilemaps/marcs_world.json',
+            '/assets/tilemaps/marcs_world.json',
             '/assets/tilemaps/standard.json',
             '/assets/tilemaps/flat.json',
             '/assets/tilemaps/catchmejump1.json',
             '/assets/tilemaps/catchmejump2.json',
             '/assets/tilemaps/catchmejump3.json',
-            '/assets/tilemaps/catchmejump4.json',*/
+            '/assets/tilemaps/catchmejump4.json',
             '/assets/tilemaps/superjump.json',
             '/assets/tilemaps/mighty.json',
             '/assets/tilemaps/megamap.json',
