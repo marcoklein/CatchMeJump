@@ -248,13 +248,13 @@ export class GameScene extends Phaser.Scene {
     // effect that marks catcher
     catcherEmitter = null;
 
-    remainingGameTime = 5 * 60 * 1000;
+    remainingGameTime = 5 * 1000;
 
     // index of loaded map
     mapIndex: Number = -1;
 
     constructor() {
-        super({ key: 'GameScene', active: true });
+        super({ key: 'GameScene' });
     }
     
     preload() {

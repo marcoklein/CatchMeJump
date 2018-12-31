@@ -16,8 +16,11 @@ export class HudScene extends Phaser.Scene {
 
     gameFinishedText: Phaser.GameObjects.Text;
 
+    // true if game is finished
+    finished: boolean = false;
+
     constructor() {
-        super({ key: 'HudScene', active: true });
+        super({ key: 'HudScene' });
     }
 
     preload() {
@@ -88,22 +91,27 @@ export class HudScene extends Phaser.Scene {
             this.gameFinishedText.x = this.game.canvas.width / 2;
             this.gameFinishedText.y = this.game.canvas.height / 2
             this.gameFinishedText.visible = true;
-            this.input.keyboard.on('keydown_A', () => {
-                console.log('new game')
-                // restart game
-                this.scene.remove('GameScene');
-                this.scene.remove('HudScene');
+            // attach keydown event if finished to listen for new game
+            if (!this.finished) {
+                this.finished = true;
+                
+                this.input.keyboard.once('keydown_A', () => {
+                    console.log('new game')
+                    // restart game
+                    this.scene.remove('GameScene');
+                    this.scene.remove('HudScene');
 
-                this.scene.start('MainScene');
-                //this.scene.add('GameScene', GameScene, true);
-                //this.scene.add('HudScene', HudScene, true);
-                //this.scene.add('MainScene', MainScene, true);
-                //this.gameScene.scene.restart();
-                //this.gameScene.scene.restart(this.game.config);
-                //this.scene.launch();//(new GameScene());
-                //this.gameScene.scene.restart();
-                //this.scene.restart();
-            });
+                    this.scene.start('MainScene');
+                    //this.scene.add('GameScene', GameScene, true);
+                    //this.scene.add('HudScene', HudScene, true);
+                    //this.scene.add('MainScene', MainScene, true);
+                    //this.gameScene.scene.restart();
+                    //this.gameScene.scene.restart(this.game.config);
+                    //this.scene.launch();//(new GameScene());
+                    //this.gameScene.scene.restart();
+                    //this.scene.restart();
+                });
+            }
         }
     }
 }
