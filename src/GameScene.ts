@@ -74,7 +74,8 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/megamap.json',
             '/assets/tilemaps/spring.json',
             '/assets/tilemaps/lost.json',
-            '/assets/tilemaps/itemize.json'
+            '/assets/tilemaps/itemize.json',
+            '/assets/tilemaps/ultimate.json'
         ];
         // load a random map
         this.mapIndex = _.random(maps.length - 1);
