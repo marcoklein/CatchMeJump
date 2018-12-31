@@ -3,7 +3,7 @@ import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
 import { Player } from './Player';
-import { KeyboardController, GamepadController } from './InputController';
+import { KeyboardController, GamepadController, InputController } from './InputController';
 
 
 
@@ -39,6 +39,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image('ice_tiles', 'assets/tiles/ice.png');
         this.load.image('mushroom_tiles', 'assets/tiles/mushroom.png');
         this.load.image('request_tiles', 'assets/tiles/request.png');
+        this.load.image('industrial_tiles', 'assets/tiles/industrial.png');
 
         let maps = [
             /*'/assets/tilemaps/marcs_world.json',
@@ -51,7 +52,8 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/superjump.json',
             '/assets/tilemaps/mighty.json',
             '/assets/tilemaps/megamap.json',*/
-            '/assets/tilemaps/spring.json'
+            '/assets/tilemaps/spring.json',
+            '/assets/tilemaps/lost.json'
         ];
         // load a random map
         this.mapIndex = _.random(maps.length - 1);
@@ -61,6 +63,59 @@ export class GameScene extends Phaser.Scene {
 
     }
 
+    /**
+     * Creates player with given parameters.
+     * @param x 
+     * @param y 
+     * @param imageName 
+     * @param controller 
+     */
+    createPlayer(x, y, imageName, controller: InputController) {
+        let sprite = this.physics.add.sprite(x, y, 'players', imageName + '_stand');
+        sprite.setCollideWorldBounds(true);
+        sprite.setSize(56, 88);
+        sprite.setMaxVelocity(1000, 1200);
+
+        let player = new Player(controller, sprite, imageName);
+
+        return player;
+
+    }
+
+    /**
+     * Create all player and add them to this.players
+     */
+    createPlayers() {
+        
+        //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+        let player1InputController = new GamepadController(0);
+        /*let player2InputController = new KeyboardController(
+            this.input.keyboard.addKeys(
+                {
+                    up: Phaser.Input.Keyboard.KeyCodes.W,
+                    down: Phaser.Input.Keyboard.KeyCodes.S,
+                    left: Phaser.Input.Keyboard.KeyCodes.A,
+                    right: Phaser.Input.Keyboard.KeyCodes.D
+                }
+            )
+        );*/
+        let player2InputController = new GamepadController(1);
+        let player3InputController = new KeyboardController(
+            this.input.keyboard.addKeys(
+                {
+                    up: Phaser.Input.Keyboard.KeyCodes.UP,
+                    down: Phaser.Input.Keyboard.KeyCodes.SPACE,
+                    left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+                    right: Phaser.Input.Keyboard.KeyCodes.RIGHT
+                }
+            )
+        );
+
+        this.players.push(this.createPlayer(300, 300, 'alienGreen', player1InputController));
+        this.players.push(this.createPlayer(500, 300, 'alienBlue', player2InputController));
+        this.players.push(this.createPlayer(800, 300, 'alienBeige', player3InputController));
+
+    }
 
     create() {
 
@@ -86,6 +141,7 @@ export class GameScene extends Phaser.Scene {
         const iceTiles = map.addTilesetImage('ice', 'ice_tiles');
         const mushroomTiles = map.addTilesetImage('mushroom', 'mushroom_tiles');
         const requestTiles = map.addTilesetImage('request', 'request_tiles');
+        const industrialTiles = map.addTilesetImage('industrial', 'industrial_tiles');
 
         const tilesets = [
             baseTiles,
@@ -93,7 +149,8 @@ export class GameScene extends Phaser.Scene {
             candyTiles,
             iceTiles,
             mushroomTiles,
-            requestTiles
+            requestTiles,
+            industrialTiles
         ]
     
         // Parameters: layer name (or index) from Tiled, tileset, x, y
@@ -109,9 +166,6 @@ export class GameScene extends Phaser.Scene {
         // unwalkable tiles are marked as collidable
         worldLayer.setCollisionByProperty({collides: true});
 
-        
-
-
         // debug graphics for tilemap collisions
         /*const debugGraphics = this.add.graphics().setAlpha(0.75);
         worldLayer.renderDebug(debugGraphics, {
@@ -121,60 +175,19 @@ export class GameScene extends Phaser.Scene {
         });*/
 
 
+        this.createPlayers();
 
-        // create players
-        // add first player
-        let playerSprite1 = this.physics.add.sprite(500, 300, 'players', 'alienGreen_stand');
-        playerSprite1.setCollideWorldBounds(true);
-        playerSprite1.setSize(56, 88);
+        console.log('props: ', map.properties);
+        if (_.find(<any>map.properties, (prop: any) => {return prop.name === 'noBorders' && prop.value === true})) {
+            console.log('playing map without borders');
+            this.players.forEach(player => {
+                // players are placed on top if they fall down
+                player.sprite.setCollideWorldBounds(false);
+            })
+        }
 
-        //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-        let player1InputController = new GamepadController(0);
-
-        let player1 = new Player(player1InputController, playerSprite1, 'alienGreen');
-        this.players.push(player1);
-        // first player is initial catcher
-        player1.isCatcher = true;
-        this.catcherEmitter.startFollow(player1.sprite);
-
-        // add second player
-        let playerSprite2 = this.physics.add.sprite(300, 300, 'players', 'alienBlue_stand');
-        playerSprite2.setCollideWorldBounds(true);
-        playerSprite2.setSize(56, 88);
-
-        /*let player2InputController = new KeyboardController(
-            this.input.keyboard.addKeys(
-                {
-                    up: Phaser.Input.Keyboard.KeyCodes.W,
-                    down: Phaser.Input.Keyboard.KeyCodes.S,
-                    left: Phaser.Input.Keyboard.KeyCodes.A,
-                    right: Phaser.Input.Keyboard.KeyCodes.D
-                }
-            )
-        );*/
-        let player2InputController = new GamepadController(1);
-
-        let player2 = new Player(player2InputController, playerSprite2, 'alienBlue');
-        this.players.push(player2);
-
-        let playerSprite3 = this.physics.add.sprite(800, 300, 'players', 'alienPink_stand');
-        playerSprite3.setCollideWorldBounds(true);
-        playerSprite3.setSize(56, 88);
-
-        let player3InputController = new KeyboardController(
-            this.input.keyboard.addKeys(
-                {
-                    up: Phaser.Input.Keyboard.KeyCodes.UP,
-                    down: Phaser.Input.Keyboard.KeyCodes.SPACE,
-                    left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-                    right: Phaser.Input.Keyboard.KeyCodes.RIGHT
-                }
-            )
-        );
-
-        let player3 = new Player(player3InputController, playerSprite3, 'alienPink');
-        this.players.push(player3);
-
+        // choose a random catcher
+        this.setCatcher(this.players[_.random(this.players.length - 1)]);
 
         // load player animations
         this.players.forEach(player => {
@@ -235,6 +248,20 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
+    setCatcher(player: Player) {
+        // sets given player as catcher
+        // loops through all players to mark "old" catcher as no catcher
+
+        let currentCatcher = _.find(this.players, player => {return player.isCatcher});
+        if (currentCatcher) currentCatcher.isCatcher = false;
+        // promote playerB as catcher
+        player.isCatcher = true;
+        player.isFrozen = true;
+        // attach catcher effect to playerB
+        this.catcherEmitter.startFollow(player.sprite);
+        this.time.delayedCall(3000, () => { player.isFrozen = false; }, [], this);
+    }
+
     playersCollided(playerA: any, playerB: any) {
         // find catcher player object
         playerA = _.find(this.players, player => {return player.sprite === playerA});
@@ -244,21 +271,9 @@ export class GameScene extends Phaser.Scene {
             return;
         }
         if (playerA.isCatcher) {
-            playerA.isCatcher = false;
-            // promote playerB as catcher
-            playerB.isCatcher = true;
-            playerB.isFrozen = true;
-            // attach catcher effect to playerB
-            this.catcherEmitter.startFollow(playerB.sprite);
-            this.time.delayedCall(3000, () => { playerB.isFrozen = false; }, [], this);
+            this.setCatcher(playerB);
         } else if (playerB.isCatcher) {
-            playerB.isCatcher = false;
-            // promote playerA as catcher
-            playerA.isCatcher = true;
-            playerA.isFrozen = true;
-            // attach catcher effect to playerA
-            this.catcherEmitter.startFollow(playerA.sprite);
-            this.time.delayedCall(3000, () => { playerA.isFrozen = false; }, [], this);
+            this.setCatcher(playerA);
         }
     }
 
@@ -324,6 +339,16 @@ export class GameScene extends Phaser.Scene {
 
     }
 
+    playerPhysicsUpdate(time, delta, scene: GameScene) {
+        this.players.forEach(player => {
+            if (player.sprite.y > this.physics.world.bounds.height) {
+                player.sprite.x = 200;
+                player.sprite.y = 200;
+                this.setCatcher(player);
+            }
+        });
+    }
+
     update(time, delta) {
         //this.physics.world.gravity = new Phaser.Math.Vector2(0, 400);
         if (this.remainingGameTime > 0) {
@@ -333,6 +358,7 @@ export class GameScene extends Phaser.Scene {
             this.players.forEach(player => {
                 player.update(time, delta, this);
             });
+            this.playerPhysicsUpdate(time, delta, this);
             // update camera
             this.updateCameraPosition(this.cameras.main);
         } else {

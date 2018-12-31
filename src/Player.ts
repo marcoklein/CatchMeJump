@@ -169,7 +169,10 @@ export class Player {
 
         // check for world map interaction
         if (scene.objectGroup && scene.physics.world.overlap(this.sprite, scene.objectGroup)) {
-            this.sprite.setVelocityY(-1800);
+            // jumping from an object is like being on the ground
+            this.jumpsInAir = 0;
+            this.lastTimeOnGround = 0;
+            this.sprite.setVelocityY(-1300);
         }
     }
 }
