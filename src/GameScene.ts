@@ -160,7 +160,16 @@ class Player {
                 speedBoostEmitter.startFollow(this.sprite);
                 speedBoostEmitter.z = -1;
                 sceneTime.delayedCall(1500, () => { this.speed = 1; particles.destroy(); }, [], this);
-                sceneTime.delayedCall(5000, () => { this.action1Cooldown = false; this.speed = 1;}, [], this);
+                sceneTime.delayedCall(5000, () => {
+                    this.action1Cooldown = false; this.speed = 1;
+                    let speedBoostNotificationParticles = scene.add.particles('particle_red');
+                    let speedBoostNotification = speedBoostNotificationParticles.createEmitter();
+                    speedBoostNotification.setScale(0.5, 0.5);
+                    speedBoostNotification.setSpeed(300);
+                    speedBoostNotification.setBlendMode(Phaser.BlendModes.ADD);
+                    speedBoostNotification.startFollow(this.sprite);
+                    sceneTime.delayedCall(150, () => {speedBoostNotificationParticles.destroy();}, [], this);
+                }, [], this);
             }
 
 
