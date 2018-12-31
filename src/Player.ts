@@ -177,7 +177,7 @@ export class Player {
             // jumping from an object is like being on the ground
             this.jumpsInAir = 0;
             this.lastTimeOnGround = 0;
-            this.sprite.setVelocityY(-1300);
+            this.sprite.setVelocityY(-800 * this.speed);
         }
     }
 
@@ -187,8 +187,8 @@ export class Player {
         }
         // activate speed boost
         this.jetpackTime = 1;
-        this.speed = 1.5;
-        this.maxJumpsInAir = 10;
+        //this.speed = 1.5;
+        this.maxJumpsInAir = 1000;
         //this.action1Cooldown = true;
         // play particle animation
         var particles = scene.add.particles('particle_red');
@@ -198,7 +198,7 @@ export class Player {
         speedBoostEmitter.setSpeed(50);
         speedBoostEmitter.setBlendMode(Phaser.BlendModes.SCREEN);
         speedBoostEmitter.startFollow(this.sprite);
-        scene.time.delayedCall(time, () => { this.speed = 1; particles.destroy(); this.jetpackTime = 0; this.maxJumpsInAir = this.MAX_AIR_JUMPS;}, [], this);
+        scene.time.delayedCall(time, () => { particles.destroy(); this.jetpackTime = 0; this.maxJumpsInAir = this.MAX_AIR_JUMPS;}, [], this);
 
     }
 }
