@@ -788,7 +788,7 @@
   </tile>
  </tileset>
  <tileset firstgid="157" name="candy" tilewidth="70" tileheight="70" tilecount="98" columns="14">
-  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Candy expansion/sheet.png" width="980" height="490"/>
+  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Candy expansion/candy.png" width="980" height="490"/>
   <tile id="0">
    <properties>
     <property name="collides" type="bool" value="true"/>
@@ -1281,7 +1281,7 @@
   </tile>
  </tileset>
  <tileset firstgid="255" name="ice" tilewidth="70" tileheight="70" tilecount="98" columns="14">
-  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Ice expansion/sheet.png" width="980" height="490"/>
+  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Ice expansion/ice.png" width="980" height="490"/>
   <tile id="0">
    <properties>
     <property name="collides" type="bool" value="true"/>
@@ -1774,7 +1774,7 @@
   </tile>
  </tileset>
  <tileset firstgid="353" name="mushroom" tilewidth="70" tileheight="70" spacing="1" tilecount="49" columns="7">
-  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Mushroom expansion/PNG/spritesheet.png" width="512" height="512"/>
+  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Mushroom expansion/PNG/mushroom.png" width="512" height="512"/>
   <tile id="0">
    <properties>
     <property name="collides" type="bool" value="true"/>
@@ -2022,7 +2022,7 @@
   </tile>
  </tileset>
  <tileset firstgid="402" name="request" tilewidth="70" tileheight="70" tilecount="98" columns="14">
-  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Request pack/sheet.png" width="980" height="490"/>
+  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Request pack/request.png" width="980" height="490"/>
   <tile id="0">
    <properties>
     <property name="collides" type="bool" value="true"/>
@@ -2515,7 +2515,7 @@
   </tile>
  </tileset>
  <tileset firstgid="500" name="building" tilewidth="70" tileheight="70" tilecount="98" columns="14">
-  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Buildings expansion/sheet.png" width="980" height="490"/>
+  <image source="../../../../../Downloads/platformer-art-complete-pack-0/Buildings expansion/buildings.png" width="980" height="490"/>
   <tile id="0">
    <properties>
     <property name="collides" type="bool" value="true"/>

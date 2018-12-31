@@ -32,7 +32,7 @@ class GamepadController extends InputController {
         }
 
         let gamepad = input.gamepad.getPad(this.padIndex);
-        console.warn('No Gamepad at index %i found!', this.padIndex);
+        //console.warn('No Gamepad at index %i found!', this.padIndex);
         // handle player movement
         if (gamepad && gamepad.axes[0].value < -0.1) {
             // move left
@@ -258,9 +258,14 @@ export class GameScene extends Phaser.Scene {
 
         // load tilemap
         this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
+        this.load.image('building_tiles', 'assets/tiles/buildings.png');
+        this.load.image('candy_tiles', 'assets/tiles/candy.png');
+        this.load.image('ice_tiles', 'assets/tiles/ice.png');
+        this.load.image('mushroom_tiles', 'assets/tiles/mushroom.png');
+        this.load.image('request_tiles', 'assets/tiles/request.png');
 
         let maps = [
-            '/assets/tilemaps/marcs_world.json',
+            /*'/assets/tilemaps/marcs_world.json',
             '/assets/tilemaps/standard.json',
             '/assets/tilemaps/flat.json',
             '/assets/tilemaps/catchmejump1.json',
@@ -268,7 +273,7 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/catchmejump3.json',
             '/assets/tilemaps/catchmejump4.json',
             '/assets/tilemaps/superjump.json',
-            '/assets/tilemaps/mighty.json',
+            '/assets/tilemaps/mighty.json',*/
             '/assets/tilemaps/megamap.json'
         ];
         // load a random map
@@ -298,15 +303,35 @@ export class GameScene extends Phaser.Scene {
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
         const map = this.make.tilemap({key: 'map_' + this.mapIndex});
-        const tileset = map.addTilesetImage('base_platformer', 'base_tiles');
+        const baseTiles = map.addTilesetImage('base_platformer', 'base_tiles');
+        const buildingTiles = map.addTilesetImage('building', 'building_tiles');
+        const candyTiles = map.addTilesetImage('candy', 'candy_tiles');
+        const iceTiles = map.addTilesetImage('ice', 'ice_tiles');
+        const mushroomTiles = map.addTilesetImage('mushroom', 'mushroom_tiles');
+        const requestTiles = map.addTilesetImage('request', 'request_tiles');
+
+        const tilesets = [
+            baseTiles,
+            buildingTiles,
+            candyTiles,
+            iceTiles,
+            mushroomTiles,
+            requestTiles
+        ]
     
         // Parameters: layer name (or index) from Tiled, tileset, x, y
-        const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
-        const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
-        const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
+        const belowLayer = map.createStaticLayer('Below Player', tilesets, 0, 0);
+        const worldLayer = map.createStaticLayer('World', tilesets, 0, 0);
+        const aboveLayer = map.createStaticLayer('Above Player', tilesets, 0, 0);
 
         // unwalkable tiles are marked as collidable
         worldLayer.setCollisionByProperty({collides: true});
+
+        
+        /*effectLayer.setTileIndexCallback(tileIndex , this.collectItem, this);
+
+        this.physics.add.overlap(this.sprite1, itemLayer);*/
+
 
         // debug graphics for tilemap collisions
         /*const debugGraphics = this.add.graphics().setAlpha(0.75);
@@ -394,7 +419,7 @@ export class GameScene extends Phaser.Scene {
 
 
         // set bounds
-        this.physics.world.setBounds(0, 0, map.width, map.height);
+        this.physics.world.setBounds(0, 0, map.width * map.tileWidth, map.height * map.tileHeight);
         //this.cameras.main.setBounds(-200, -200, 1600, 1600);
 
 
@@ -406,9 +431,6 @@ export class GameScene extends Phaser.Scene {
             this.game.resize(window.innerWidth, window.innerHeight);
             this.cameras.main.setSize(window.innerWidth, window.innerHeight);
         });
-
-        // store players so hud knows what to render
-        //this.registry.set('players', this.players);
 
     }
 
@@ -502,6 +524,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        //this.physics.world.gravity = new Phaser.Math.Vector2(0, 400);
         if (this.remainingGameTime > 0) {
             // game is running
             this.remainingGameTime -= delta;
