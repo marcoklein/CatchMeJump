@@ -5,7 +5,13 @@ import * as _ from 'underscore';
 import { Player } from './Player';
 import { KeyboardController, GamepadController, InputController } from './InputController';
 
+abstract class Item {
 
+}
+
+class JetpackItem {
+
+}
 
 export class GameScene extends Phaser.Scene {
     // list of all players
@@ -18,7 +24,18 @@ export class GameScene extends Phaser.Scene {
     // index of loaded map
     mapIndex: number = -1;
 
-    objectGroup: any//Phaser.Physics.Arcade.StaticGroup = null;
+    worldLayer;
+
+    objectGroup: any;//Phaser.Physics.Arcade.StaticGroup = null;
+    itemGroup: any;
+    itemSpawnLocations: [
+        {
+            x: number,
+            y: number
+        }
+    ];
+    // time till next item is spawned
+    nextItemSpawn: number = 15000;
 
     constructor() {
         super({ key: 'GameScene' });
@@ -27,6 +44,9 @@ export class GameScene extends Phaser.Scene {
     preload() {
         // load players
         this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
+
+        // load items
+        this.load.image('jetpack_item', 'assets/sprites/jetpack_item.png');
 
         // load particles
         this.load.image('particle_blue', 'assets/particles/blue.png');
@@ -48,12 +68,13 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/catchmejump1.json',
             '/assets/tilemaps/catchmejump2.json',
             '/assets/tilemaps/catchmejump3.json',
-            '/assets/tilemaps/catchmejump4.json',
+            '/assets/tilemaps/catchmejump4.json',*/
             '/assets/tilemaps/superjump.json',
             '/assets/tilemaps/mighty.json',
-            '/assets/tilemaps/megamap.json',*/
+            '/assets/tilemaps/megamap.json',
             '/assets/tilemaps/spring.json',
-            '/assets/tilemaps/lost.json'
+            '/assets/tilemaps/lost.json',
+            '/assets/tilemaps/itemize.json'
         ];
         // load a random map
         this.mapIndex = _.random(maps.length - 1);
@@ -113,9 +134,9 @@ export class GameScene extends Phaser.Scene {
 
         this.players.push(this.createPlayer(300, 300, 'alienGreen', player1InputController));
         this.players.push(this.createPlayer(500, 300, 'alienBlue', player2InputController));
-        this.players.push(this.createPlayer(700, 300, 'alienBeige', player3InputController));
-        this.players.push(this.createPlayer(900, 300, 'alienPink', player3InputController));
-        this.players.push(this.createPlayer(1100, 300, 'alienYellow', player3InputController));
+        //this.players.push(this.createPlayer(700, 300, 'alienBeige', player3InputController));
+        //this.players.push(this.createPlayer(900, 300, 'alienPink', player3InputController));
+        //this.players.push(this.createPlayer(1100, 300, 'alienYellow', player3InputController));
 
     }
 
@@ -157,7 +178,7 @@ export class GameScene extends Phaser.Scene {
     
         // Parameters: layer name (or index) from Tiled, tileset, x, y
         const belowLayer = map.createStaticLayer('Below Player', tilesets, 0, 0);
-        const worldLayer = map.createStaticLayer('World', tilesets, 0, 0);
+        this.worldLayer = map.createStaticLayer('World', tilesets, 0, 0);
         const aboveLayer = map.createStaticLayer('Above Player', tilesets, 0, 0);
         const objectLayer = map.createDynamicLayer('Objects', tilesets, 0, 0);
 
@@ -166,7 +187,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         // unwalkable tiles are marked as collidable
-        worldLayer.setCollisionByProperty({collides: true});
+        this.worldLayer.setCollisionByProperty({collides: true});
 
         // debug graphics for tilemap collisions
         /*const debugGraphics = this.add.graphics().setAlpha(0.75);
@@ -199,7 +220,7 @@ export class GameScene extends Phaser.Scene {
 
         // enable collision between platforms and player
         this.players.forEach(player => {
-            this.physics.add.collider(player.sprite, worldLayer);
+            this.physics.add.collider(player.sprite, this.worldLayer);
         });
         // listen to player to player events
         for (let i = 0; i < this.players.length; i++) {
@@ -231,6 +252,8 @@ export class GameScene extends Phaser.Scene {
         if (objectLayer) {
             // Create a physics group - useful for colliding the player against all the spikes
             this.objectGroup = this.physics.add.staticGroup();
+            this.itemGroup = this.physics.add.staticGroup();
+
 
             // Loop over each Tile and replace spikes (tile index 77) with custom sprites
             objectLayer.forEachTile(tile => {
@@ -245,9 +268,34 @@ export class GameScene extends Phaser.Scene {
 
                     // And lastly, remove the spike tile from the layer
                     //objectLayer.removeTileAt(tile.x, tile.y);
+                } else if (tile.index === 1 || (<any>tile.properties).spawn_item) {
+                    // extract spawn points for items
+                    console.log('found spawn point', tile.properties);
+                    objectLayer.removeTileAt(tile.x, tile.y);
+                    // add item spawner location
+                    if (!this.itemSpawnLocations) {
+                        this.itemSpawnLocations = [{x: tile.x * tile.width, y: tile.y * tile.height}];
+                    } else {
+                        this.itemSpawnLocations.push({x: tile.x * tile.width, y: tile.y * tile.height});
+                    }
                 }
             });
         }
+    }
+
+    spawnItem(x, y, item: Item) {
+        let itemSprite = this.physics.add.sprite(x, y, 'jetpack_item');
+        
+        this.physics.add.collider(itemSprite, this.worldLayer);
+        this.players.forEach(
+            player => {
+                this.physics.add.overlap(player.sprite, itemSprite, () => {
+                    itemSprite.destroy();
+                    // apply jetpack effect if picked up by player
+                    player.activateJetpack(5000, this);
+                });
+            }
+        );
     }
 
     setCatcher(player: Player) {
@@ -351,6 +399,17 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
+    updateItemSpawner(time, delta) {
+        this.nextItemSpawn -= delta;
+        if (this.itemSpawnLocations && this.itemSpawnLocations.length > 0 && this.nextItemSpawn < 0) {
+            this.nextItemSpawn = 15000;
+
+            // spawn an item at a item spawner
+            let location = this.itemSpawnLocations[_.random(this.itemSpawnLocations.length - 1)];
+            this.spawnItem(location.x, location.y, null);
+        }
+    }
+
     update(time, delta) {
         //this.physics.world.gravity = new Phaser.Math.Vector2(0, 400);
         if (this.remainingGameTime > 0) {
@@ -363,6 +422,7 @@ export class GameScene extends Phaser.Scene {
             this.playerPhysicsUpdate(time, delta, this);
             // update camera
             this.updateCameraPosition(this.cameras.main);
+            this.updateItemSpawner(time, delta);
         } else {
             // game finished - do nothing
             this.scene.pause();

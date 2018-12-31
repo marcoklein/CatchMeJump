@@ -18,11 +18,15 @@ export class Player {
     // actions
     action1Cooldown: boolean = false;
 
+    MAX_AIR_JUMPS = 1;
+
     // jumps in air
     jumpsInAir: number = 0;
-    maxJumpsInAir: number = 1;
+    maxJumpsInAir: number = this.MAX_AIR_JUMPS;
     jumpPerformed: boolean = false;
     lastTimeOnGround: number = 0;
+
+    jetpackTime: number;
 
     animationKeys: {
         walk: string,
@@ -73,6 +77,7 @@ export class Player {
         let input = scene.input;
         let sceneTime = scene.time;
         this.inputController.update(input);
+        this.jetpackTime -= delta;
         // handle player movement
         if (!this.isFrozen) {
             // speed boost activated?
@@ -174,5 +179,26 @@ export class Player {
             this.lastTimeOnGround = 0;
             this.sprite.setVelocityY(-1300);
         }
+    }
+
+    activateJetpack(time, scene) {
+        if (this.jetpackTime > 0) {
+            return;
+        }
+        // activate speed boost
+        this.jetpackTime = 1;
+        this.speed = 1.5;
+        this.maxJumpsInAir = 10;
+        //this.action1Cooldown = true;
+        // play particle animation
+        var particles = scene.add.particles('particle_red');
+        let speedBoostEmitter = particles.createEmitter({});
+        speedBoostEmitter.setPosition(0, 35);
+        speedBoostEmitter.setScale(0.5);
+        speedBoostEmitter.setSpeed(50);
+        speedBoostEmitter.setBlendMode(Phaser.BlendModes.SCREEN);
+        speedBoostEmitter.startFollow(this.sprite);
+        scene.time.delayedCall(time, () => { this.speed = 1; particles.destroy(); this.jetpackTime = 0; this.maxJumpsInAir = this.MAX_AIR_JUMPS;}, [], this);
+
     }
 }
