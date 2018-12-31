@@ -265,7 +265,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image('request_tiles', 'assets/tiles/request.png');
 
         let maps = [
-            /*'/assets/tilemaps/marcs_world.json',
+            '/assets/tilemaps/marcs_world.json',
             '/assets/tilemaps/standard.json',
             '/assets/tilemaps/flat.json',
             '/assets/tilemaps/catchmejump1.json',
@@ -273,8 +273,9 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/catchmejump3.json',
             '/assets/tilemaps/catchmejump4.json',
             '/assets/tilemaps/superjump.json',
-            '/assets/tilemaps/mighty.json',*/
-            '/assets/tilemaps/megamap.json'
+            '/assets/tilemaps/mighty.json',
+            '/assets/tilemaps/megamap.json',
+            '/assets/tilemaps/spring.json'
         ];
         // load a random map
         this.mapIndex = _.random(maps.length - 1);
@@ -323,14 +324,16 @@ export class GameScene extends Phaser.Scene {
         const belowLayer = map.createStaticLayer('Below Player', tilesets, 0, 0);
         const worldLayer = map.createStaticLayer('World', tilesets, 0, 0);
         const aboveLayer = map.createStaticLayer('Above Player', tilesets, 0, 0);
+        const objectLayer = map.createDynamicLayer('Objects', tilesets, 0, 0);
+
+        if (objectLayer) {
+            console.log('Object layer loaded');
+        }
 
         // unwalkable tiles are marked as collidable
         worldLayer.setCollisionByProperty({collides: true});
 
         
-        /*effectLayer.setTileIndexCallback(tileIndex , this.collectItem, this);
-
-        this.physics.add.overlap(this.sprite1, itemLayer);*/
 
 
         // debug graphics for tilemap collisions
@@ -432,6 +435,12 @@ export class GameScene extends Phaser.Scene {
             this.cameras.main.setSize(window.innerWidth, window.innerHeight);
         });
 
+        /*objectLayer.setTileLocationCallback(0, 28, 10, 1, function() {
+            console.log('overlap');
+            playerSprite3.setVelocityY(-1000);
+        }, this);
+
+        this.physics.add.overlap(playerSprite3, objectLayer);*/
     }
 
     playersCollided(playerA: any, playerB: any) {
