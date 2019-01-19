@@ -13,6 +13,7 @@ class JetpackItem {
 
 }
 
+
 export class GameScene extends Phaser.Scene {
     // list of all players
     players: Player[] = [];
