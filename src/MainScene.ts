@@ -1,6 +1,6 @@
 import { GameScene } from "./GameScene";
 import { HudScene } from "./HudScene";
-import { TextButton } from "./TextButton";
+import { TextButton } from "./ui/TextButton";
 
 /**
  * Starting scene allowing player to make game configurations and enter the game.
@@ -8,19 +8,28 @@ import { TextButton } from "./TextButton";
 export class MainScene extends Phaser.Scene {
 
     gameFinishedText: Phaser.GameObjects.Text;
+    backgroundImage: Phaser.GameObjects.TileSprite;
 
     // user interface
     incrementButton: TextButton;
     decrementButton: TextButton;
     playerCountText: Phaser.GameObjects.Text;
 
+    mainContainer: Phaser.GameObjects.Container;
+
 
     constructor() {
         super('MainScene');
     }
 
-    create() {
+    preload() {
+        // load background
+        this.load.image('background', 'assets/backgrounds/bg.png');
+        // load ui
+        this.load.atlas('ui', 'assets/sprites/uipack.png', 'assets/sprites/uipack.json');
+    }
 
+    create() {
         // be sure to set default registry keys
         if (!this.registry.get('playerCount')) {
             // two players per default
@@ -28,21 +37,38 @@ export class MainScene extends Phaser.Scene {
         }
 
 
+        // ensure game size is set properly
+        this.game.resize(window.innerWidth, window.innerHeight);
+        this.cameras.main.setSize(window.innerWidth, window.innerHeight);
+        // add resize listener
+        window.addEventListener('resize', () => {
+            this.game.resize(window.innerWidth, window.innerHeight);
+            this.cameras.main.setSize(window.innerWidth, window.innerHeight);
+        });
 
-        this.gameFinishedText = this.add.text(this.game.canvas.width / 2, this.game.canvas.height / 2, 'Get ready!', { font: '64px Arial', fill: '#DDD' });
-        this.gameFinishedText.setOrigin(0.5);
+
+        // set background image
+        this.backgroundImage = this.add.tileSprite(0, 0, window.innerWidth * 2, window.innerHeight * 2, 'background');
 
 
-        this.playerCountText = this.add.text(100, 200, '');
 
-        this.incrementButton = new TextButton(this, 100, 100, 'Increment Count', { fill: '#0f0 ' }, () => this.incrementClickCount());
+        // add menu buttons
+        this.incrementButton = new TextButton(this, this.game.canvas.width / 2, 110, 'Add Player', { fill: '#111 ', fontSize: '18px' }, () => this.incrementClickCount());
+        this.incrementButton.setOrigin(0.5);
         this.add.existing(this.incrementButton);
 
-        this.decrementButton = new TextButton(this, 100, 150, 'Decrement Count', { fill: '#0f0 ' }, () => this.decrementClickCount());
+        this.playerCountText = this.add.text(this.game.canvas.width / 2, 150, '', { fill: '#222', fontSize: '24px' });
+        this.playerCountText.setOrigin(0.5);
+
+        this.decrementButton = new TextButton(this, this.game.canvas.width / 2, 190, 'Remove Player', { fill: '#111 ', fontSize: '18px' }, () => this.decrementClickCount());
+        this.decrementButton.setOrigin(0.5);
         this.add.existing(this.decrementButton);
 
         this.updateClickCountText();
 
+        this.gameFinishedText = new TextButton(this, this.game.canvas.width / 2, 250, 'Play', { fontSize: '64px', fill: '#222' }, () => this.startGame());
+        this.add.existing(this.gameFinishedText);
+        this.gameFinishedText.setOrigin(0.5);
 
 
         this.input.keyboard.once('keyup_B', () => {
@@ -75,6 +101,6 @@ export class MainScene extends Phaser.Scene {
     }
 
     updateClickCountText() {
-        this.playerCountText.setText(`Button has been clicked ${this.registry.values.playerCount} times.`);
+        this.playerCountText.setText(`${this.registry.values.playerCount} players`);
     }
 }
