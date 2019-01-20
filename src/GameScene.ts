@@ -114,7 +114,7 @@ export class GameScene extends Phaser.Scene {
                 this.input.keyboard.addKeys(
                     {
                         up: Phaser.Input.Keyboard.KeyCodes.UP,
-                        down: Phaser.Input.Keyboard.KeyCodes.CTRL,
+                        down: Phaser.Input.Keyboard.KeyCodes.ALT,
                         left: Phaser.Input.Keyboard.KeyCodes.LEFT,
                         right: Phaser.Input.Keyboard.KeyCodes.RIGHT
                     }
