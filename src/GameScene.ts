@@ -109,9 +109,9 @@ export class GameScene extends Phaser.Scene {
      */
     createPlayers() {
         
-        //let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-        let player1InputController = new GamepadController(0);
-        /*let player2InputController = new KeyboardController(
+        let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
+        //let player1InputController = new GamepadController(0);
+        let player2InputController = new KeyboardController(
             this.input.keyboard.addKeys(
                 {
                     up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -120,8 +120,8 @@ export class GameScene extends Phaser.Scene {
                     right: Phaser.Input.Keyboard.KeyCodes.D
                 }
             )
-        );*/
-        let player2InputController = new GamepadController(1);
+        );
+        //let player2InputController = new GamepadController(1);
         let player3InputController = new KeyboardController(
             this.input.keyboard.addKeys(
                 {
