@@ -71,7 +71,7 @@ export class MainScene extends Phaser.Scene {
         this.gameFinishedText.setOrigin(0.5);
 
 
-        this.input.keyboard.once('keyup_B', () => {
+        this.input.keyboard.once('keyup_ENTER', () => {
             this.startGame();
         });
     }
@@ -91,12 +91,18 @@ export class MainScene extends Phaser.Scene {
     }
 
     incrementClickCount() {
-        this.registry.set('playerCount', this.registry.get('playerCount') + 1);
+        // increase player count but do not allow more than 5 players
+        // and do not allow more players than available gamepads (two can play with keyboard)
+        if (this.registry.values.playerCount < 5 && this.registry.values.playerCount < this.input.gamepad.gamepads.length + 2) {
+            this.registry.set('playerCount', this.registry.get('playerCount') + 1);
+        }
         this.updateClickCountText();
     }
 
     decrementClickCount() {
-        this.registry.set('playerCount', this.registry.get('playerCount') - 1);
+        if (this.registry.values.playerCount > 0) {
+            this.registry.set('playerCount', this.registry.get('playerCount') - 1);
+        }
         this.updateClickCountText();
     }
 

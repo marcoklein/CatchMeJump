@@ -95,7 +95,7 @@ export class HudScene extends Phaser.Scene {
             if (!this.finished) {
                 this.finished = true;
                 
-                this.input.keyboard.once('keydown_A', () => {
+                this.input.keyboard.once('keyup_ENTER', () => {
                     console.log('new game')
                     // restart game
                     this.scene.remove('GameScene');

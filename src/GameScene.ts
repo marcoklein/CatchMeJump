@@ -109,35 +109,45 @@ export class GameScene extends Phaser.Scene {
      */
     createPlayers() {
         
-        let player1InputController = new KeyboardController(this.input.keyboard.createCursorKeys());
-        //let player1InputController = new GamepadController(0);
-        let player2InputController = new KeyboardController(
-            this.input.keyboard.addKeys(
-                {
-                    up: Phaser.Input.Keyboard.KeyCodes.W,
-                    down: Phaser.Input.Keyboard.KeyCodes.S,
-                    left: Phaser.Input.Keyboard.KeyCodes.A,
-                    right: Phaser.Input.Keyboard.KeyCodes.D
-                }
+        let keyboardInputs = [
+            new KeyboardController(
+                this.input.keyboard.addKeys(
+                    {
+                        up: Phaser.Input.Keyboard.KeyCodes.UP,
+                        down: Phaser.Input.Keyboard.KeyCodes.CTRL,
+                        left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+                        right: Phaser.Input.Keyboard.KeyCodes.RIGHT
+                    }
+                )
+            ),
+            new KeyboardController(
+                this.input.keyboard.addKeys(
+                    {
+                        up: Phaser.Input.Keyboard.KeyCodes.W,
+                        down: Phaser.Input.Keyboard.KeyCodes.SPACE,
+                        left: Phaser.Input.Keyboard.KeyCodes.A,
+                        right: Phaser.Input.Keyboard.KeyCodes.D
+                    }
+                )
             )
-        );
-        //let player2InputController = new GamepadController(1);
-        let player3InputController = new KeyboardController(
-            this.input.keyboard.addKeys(
-                {
-                    up: Phaser.Input.Keyboard.KeyCodes.UP,
-                    down: Phaser.Input.Keyboard.KeyCodes.SPACE,
-                    left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-                    right: Phaser.Input.Keyboard.KeyCodes.RIGHT
-                }
-            )
-        );
-
-        this.players.push(this.createPlayer(300, 300, 'alienGreen', player1InputController));
-        this.players.push(this.createPlayer(500, 300, 'alienBlue', player2InputController));
-        //this.players.push(this.createPlayer(700, 300, 'alienBeige', player3InputController));
-        //this.players.push(this.createPlayer(900, 300, 'alienPink', player3InputController));
-        //this.players.push(this.createPlayer(1100, 300, 'alienYellow', player3InputController));
+        ];
+        let alienNames = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];
+        // add input controllers depending on available gamepads
+        let playerCount = this.registry.values.playerCount;
+        let gamepadCount = this.input.gamepad.gamepads.length;
+        console.log('Adding %i players.', playerCount);
+        console.log('%i gamepads are available.', gamepadCount);
+        for (let i = 0; i < playerCount; i++) {
+            // add gamepad controllers first, then add keyboard controllers
+            if (gamepadCount > 0) {
+                this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], new GamepadController(gamepadCount - 1)));
+                gamepadCount--;
+            } else {
+                // add keyboard
+                console.log('adding keyboard', i - this.input.gamepad.gamepads.length);
+                this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], keyboardInputs[i - this.input.gamepad.gamepads.length]));
+            }
+        }
 
     }
 
