@@ -342,16 +342,12 @@ export class GameScene extends Phaser.Scene {
      * Updates camera position too always see all players.
      */
     updateCameraPosition(cam) {
-        // find center point of all players
         const CAM_OFFSET = 600;
         const MIN_OFFSET = 400;
 
         // determine player bounds (area all players lay in)
         var playerBounds = {
-            x1: null,
-            y1: null,
-            x2: null,
-            y2: null,
+            x1: null, y1: null, x2: null, y2: null,
             get width() {
                 return Math.max(this.x2 - this.x1, MIN_OFFSET) + CAM_OFFSET;
             },
