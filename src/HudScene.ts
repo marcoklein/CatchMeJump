@@ -43,13 +43,13 @@ export class HudScene extends Phaser.Scene {
 
 
         // ensure game size is set properly
-        this.game.resize(window.innerWidth, window.innerHeight);
+        /*this.game.resize(window.innerWidth, window.innerHeight);
         this.cameras.main.setSize(window.innerWidth, window.innerHeight);
         // add resize listener
         window.addEventListener('resize', () => {
             this.game.resize(window.innerWidth, window.innerHeight);
             this.cameras.main.setSize(window.innerWidth, window.innerHeight);
-        });
+        });*/
     }
 
     scalefactor = 0.5;

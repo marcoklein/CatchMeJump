@@ -135,8 +135,12 @@ export class GameScene extends Phaser.Scene {
         // add input controllers depending on available gamepads
         let playerCount = this.registry.values.playerCount;
         let gamepadCount = this.input.gamepad.gamepads.length;
+        console.log('gamepad enables', this.input.gamepad.enabled);
         console.log('Adding %i players.', playerCount);
+        console.log(this.input.gamepad.gamepads);
         console.log('%i gamepads are available.', gamepadCount);
+        let originalGamepadCount = 1;
+        gamepadCount = 1;
         for (let i = 0; i < playerCount; i++) {
             // add gamepad controllers first, then add keyboard controllers
             if (gamepadCount > 0) {
@@ -144,14 +148,19 @@ export class GameScene extends Phaser.Scene {
                 gamepadCount--;
             } else {
                 // add keyboard
-                console.log('adding keyboard', i - this.input.gamepad.gamepads.length);
-                this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], keyboardInputs[i - this.input.gamepad.gamepads.length]));
+                console.log('adding keyboard', i - originalGamepadCount);
+                this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], keyboardInputs[i - originalGamepadCount]));
             }
         }
 
     }
-
     create() {
+        // needed because otherwise gamepads are not detected
+        setTimeout(() => {
+            this._create();
+        }, 0);
+    }
+    _create() {
 
         //  First create a particle manager
         //  A single manager can be responsible for multiple emitters
@@ -163,7 +172,7 @@ export class GameScene extends Phaser.Scene {
         this.catcherEmitter.setSpeed(50);
         this.catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
 
-        
+
 
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
@@ -250,13 +259,13 @@ export class GameScene extends Phaser.Scene {
 
 
         // ensure game size is set properly
-        this.game.resize(window.innerWidth, window.innerHeight);
+        /*this.game.resize(window.innerWidth, window.innerHeight);
         this.cameras.main.setSize(window.innerWidth, window.innerHeight);
         // add resize listener
         window.addEventListener('resize', () => {
             this.game.resize(window.innerWidth, window.innerHeight);
             this.cameras.main.setSize(window.innerWidth, window.innerHeight);
-        });
+        });*/
 
 
         // enable special map objects if layer is available
