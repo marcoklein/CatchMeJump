@@ -37,6 +37,7 @@ var config: Phaser.Types.Core.GameConfig = {
         arcade: {
             gravity: { y: 900 },
             //debug: true
+            tileBias: 70 // prevent falling through tiles... (tile size of tilemap)
         }
     },
     scale: {
