@@ -3,8 +3,6 @@
 import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
-import { GameScene } from './GameScene';
-import { HudScene } from './HudScene';
 import { MainScene } from './MainScene';
 
 
@@ -57,9 +55,6 @@ var config: Phaser.Types.Core.GameConfig = {
     input: {
         gamepad: true
     }
-    /*input: {
-        gamepad: true
-    }*/
 };
 
 

@@ -139,8 +139,11 @@ export class GameScene extends Phaser.Scene {
         console.log('Adding %i players.', playerCount);
         console.log(this.input.gamepad.gamepads);
         console.log('%i gamepads are available.', gamepadCount);
-        let originalGamepadCount = 1;
-        gamepadCount = 1;
+        let originalGamepadCount = 0;
+        gamepadCount = 0;
+        /*for (let i = 0; i < gamepadCount; i++) {
+            this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], new GamepadController(i)));
+        }*/
         for (let i = 0; i < playerCount; i++) {
             // add gamepad controllers first, then add keyboard controllers
             if (gamepadCount > 0) {
@@ -242,6 +245,7 @@ export class GameScene extends Phaser.Scene {
         this.players.forEach(player => {
             this.physics.add.collider(player.sprite, this.worldLayer);
         });
+        //this.physics.add.collider(_.pluck(this.players, 'sprite'), _.pluck(this.players, 'sprite'));
         // listen to player to player events
         for (let i = 0; i < this.players.length; i++) {
             for (let j = i; j < this.players.length; j++) {
@@ -332,19 +336,61 @@ export class GameScene extends Phaser.Scene {
         this.time.delayedCall(3000, () => { player.isFrozen = false; }, [], this);
     }
 
-    playersCollided(playerA: any, playerB: any) {
+    playersCollided(spritePlayerA: Phaser.Physics.Arcade.Sprite, spritePlayerB: Phaser.Physics.Arcade.Sprite) {
         // find catcher player object
-        playerA = _.find(this.players, player => {return player.sprite === playerA});
-        playerB = _.find(this.players, player => {return player.sprite === playerB});
+        let playerA = _.find(this.players, player => {return player.sprite === spritePlayerA});
+        let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
+
+        // handle collision
+        this.handlePlayerCollision(playerA, playerB);
+        // custom separation function of two players to prevent pushing into a wall
+        //this.separateBodies(playerA, playerB);
+    }
+
+    private handlePlayerCollision(playerA: Player, playerB: Player) {
         if (playerA.isFrozen || playerB.isFrozen) {
             // do not allow catches during freeze time
             return;
         }
+        // switch catchers
         if (playerA.isCatcher) {
             this.setCatcher(playerB);
         } else if (playerB.isCatcher) {
             this.setCatcher(playerA);
         }
+    }
+
+    /**
+     * Custom separation function of two (player) bodies, to prevent pushing into obstacles.
+     * 
+     * @param bodyA 
+     * @param bodyB 
+     */
+    private separateBodies(playerA: Player, playerB: Player) {
+        let bodyA = <Phaser.Physics.Arcade.Body> playerA.physicsBody;
+        let bodyB = <Phaser.Physics.Arcade.Body> playerB.physicsBody;
+        let moveA = (bodyA.x - bodyA.prev.x);
+        let moveB = (bodyB.x - bodyB.prev.x);
+        let velocityDelta = moveA - moveB;
+
+        //bodyA.newVelocity;
+        console.log(velocityDelta);
+        console.log(bodyA.onWall() || bodyB.onWall());
+        console.log(bodyA.touching, bodyB.touching);
+        //console.log(bodyA.over, bodyB.touching);
+        let aOverlap = this.physics.overlapTiles(playerA.sprite, this.worldLayer)
+        /*if (
+            (velocityDelta < 0 // body A gets pushed to the left!
+            && bodyA.onWall()) // and there is an obstacle to the left
+            ||                 // ... or ...
+            (velocityDelta > 0 // body B gets pushed to the right!
+            && bodyB.onWall()) // and there is an obstact to the right
+        ) {
+            console.log('separation');
+            // stop horizontal movement
+            bodyA.setVelocityX(0);
+            bodyB.setVelocityX(0);
+        }*/
     }
 
     /**
