@@ -5,7 +5,8 @@ export class Player {
     isCatcher: boolean;
     isFrozen: boolean; // true if player cant move
     inputController: InputController;
-    sprite: any = null; // sprite player controls
+    sprite: Phaser.Physics.Arcade.Sprite = null; // sprite player controls
+    physicsBody: Phaser.Physics.Arcade.Body;
     /**
      * Determines animation names.
      */
@@ -35,9 +36,10 @@ export class Player {
         hurt: string
     };
     
-    constructor(inputController: InputController, sprite: any, animationPrefix: string) {
+    constructor(inputController: InputController, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string) {
         this.inputController = inputController;
         this.sprite = sprite;
+        this.physicsBody = <Phaser.Physics.Arcade.Body> this.sprite.body;
         this.animationPrefix = animationPrefix;
         this.animationKeys = {
             walk: this.animationPrefix + '_walk',
@@ -110,7 +112,7 @@ export class Player {
             if (this.inputController.actions.left) {
                 // move left
                 this.sprite.setVelocityX(-320 * this.speed);
-                if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                if (this.physicsBody.onFloor() || this.sprite.body.touching.down) {
                     // play walk animation when on ground
                     this.sprite.anims.play(this.animationKeys.walk, true);
                 }
@@ -118,7 +120,7 @@ export class Player {
             } else if (this.inputController.actions.right) {
                 // move right
                 this.sprite.setVelocityX(320 * this.speed);
-                if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                if (this.physicsBody.onFloor() || this.sprite.body.touching.down) {
                     // play walk animation when on ground
                     this.sprite.anims.play(this.animationKeys.walk, true);
                 }
@@ -126,7 +128,7 @@ export class Player {
             } else {
                 // stand still
                 this.sprite.setVelocityX(0);
-                if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                if (this.physicsBody.onFloor() || this.sprite.body.touching.down) {
                     // play idle animation when on ground
                     this.sprite.anims.play(this.animationKeys.idle);
                 } else {
@@ -136,7 +138,7 @@ export class Player {
             }
 
             // reset jumps in air if on floor
-            if (this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+            if (this.physicsBody.onFloor() || this.sprite.body.touching.down) {
                 this.jumpsInAir = 0;
                 this.lastTimeOnGround = 0;
             } else {
@@ -149,7 +151,7 @@ export class Player {
             if (this.inputController.actions.jump) {
                 if (!this.jumpPerformed) {
                     this.jumpPerformed = true;
-                    if (this.lastTimeOnGround < 5 || this.sprite.body.onFloor() || this.sprite.body.touching.down) {
+                    if (this.lastTimeOnGround < 5 || this.physicsBody.onFloor() || this.sprite.body.touching.down) {
                         this.sprite.setVelocityY(-550 * this.speed);
                         this.sprite.anims.play(this.animationKeys.jump);
                     } else if (this.jumpsInAir < this.maxJumpsInAir) {
