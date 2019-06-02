@@ -24,7 +24,11 @@ export class GameScene extends Phaser.Scene {
     // index of loaded map
     mapIndex: number = -1;
 
-    worldLayer;
+    worldLayer: Phaser.Tilemaps.StaticTilemapLayer;
+    /**
+     * All colliding tiles.
+     */
+    collisionTiles: Phaser.Tilemaps.Tile[];
 
     objectGroup: any;//Phaser.Physics.Arcade.StaticGroup = null;
     itemGroup: any;
@@ -211,6 +215,12 @@ export class GameScene extends Phaser.Scene {
 
         // unwalkable tiles are marked as collidable
         this.worldLayer.setCollisionByProperty({collides: true});
+        this.collisionTiles = this.worldLayer.filterTiles((tile) => {
+            if (tile.properties && tile.properties.collides) {
+                return tile;
+            }
+        });
+        console.log('collidable tiles', this.collisionTiles.length);
 
         // debug graphics for tilemap collisions
         /*const debugGraphics = this.add.graphics().setAlpha(0.75);
@@ -342,9 +352,9 @@ export class GameScene extends Phaser.Scene {
         let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
 
         // handle collision
-        this.handlePlayerCollision(playerA, playerB);
+        //this.handlePlayerCollision(playerA, playerB);
         // custom separation function of two players to prevent pushing into a wall
-        //this.separateBodies(playerA, playerB);
+        this.separateBodies(playerA, playerB);
     }
 
     private handlePlayerCollision(playerA: Player, playerB: Player) {
@@ -373,24 +383,22 @@ export class GameScene extends Phaser.Scene {
         let moveB = (bodyB.x - bodyB.prev.x);
         let velocityDelta = moveA - moveB;
 
-        //bodyA.newVelocity;
-        console.log(velocityDelta);
-        console.log(bodyA.onWall() || bodyB.onWall());
-        console.log(bodyA.touching, bodyB.touching);
-        //console.log(bodyA.over, bodyB.touching);
-        let aOverlap = this.physics.overlapTiles(playerA.sprite, this.worldLayer)
-        /*if (
+        if (
             (velocityDelta < 0 // body A gets pushed to the left!
-            && bodyA.onWall()) // and there is an obstacle to the left
+                               // and there is an obstacle to the left
+            && this.physics.overlapTiles(playerA.sprite, this.collisionTiles))
             ||                 // ... or ...
             (velocityDelta > 0 // body B gets pushed to the right!
-            && bodyB.onWall()) // and there is an obstact to the right
+                               // and there is an obstact to the right
+            && this.physics.overlapTiles(playerB.sprite, this.collisionTiles))
         ) {
             console.log('separation');
             // stop horizontal movement
+            bodyA.x = bodyA.prev.x;
+            bodyB.x = bodyB.prev.x;
             bodyA.setVelocityX(0);
             bodyB.setVelocityX(0);
-        }*/
+        }
     }
 
     /**
