@@ -447,16 +447,11 @@ export class GameScene extends Phaser.Scene {
             
 
             // if one is colliding with a tile - reset the position
-            // TODO check for horizontal tiles only
-            // FIXME - players go into tiles, if both players are walking into the same directioN!
-            // this may be due to the tile collision be handled first
-            // => check manually if there is a colliding tile at left or right position of players (top and bottom positions)
+            // TODO check for horizontal tiles only (performance boost)
             if (
-                //this.physics.overlapTiles(playerB.sprite, this.collisionTiles) ||
-                //this.physics.overlapTiles(playerA.sprite, this.collisionTiles) ||
                 this.physics.overlapTiles(playerB.sprite, this.collisionTiles) ||
                 this.physics.overlapTiles(playerA.sprite, this.collisionTiles)) {
-                // reset
+                // reset - move before tile
                 bodyA.x = bodyA.prev.x;
                 bodyB.x = bodyB.prev.x;
                 bodyA.setVelocityX(0);
