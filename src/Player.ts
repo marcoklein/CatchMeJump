@@ -46,7 +46,7 @@ export class Player {
             idle: this.animationPrefix + '_idle',
             jump: this.animationPrefix + '_jump',
             hurt: this.animationPrefix + '_hurt'
-        }
+        };
     }
 
     createAnimations(anims: any) {
