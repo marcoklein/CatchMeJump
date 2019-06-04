@@ -1,5 +1,6 @@
-import { InputController } from "./InputController";
-import { GameScene } from "./GameScene";
+import { InputController } from "../InputController";
+import { GameScene } from "../GameScene";
+import { Effect } from "./Effect";
 
 export class Player {
     isCatcher: boolean;
@@ -35,6 +36,8 @@ export class Player {
         jump: string,
         hurt: string
     };
+
+    effects: Effect[];
     
     constructor(inputController: InputController, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string) {
         this.inputController = inputController;

@@ -2,7 +2,7 @@
 import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
-import { Player } from './Player';
+import { Player } from './game/Player';
 import { KeyboardController, GamepadController, InputController } from './InputController';
 
 abstract class Item {
@@ -354,26 +354,14 @@ export class GameScene extends Phaser.Scene {
         // find catcher player object
         let playerA = _.find(this.players, player => {return player.sprite === spritePlayerA});
         let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
-        //console.log('overlap');
-
-        // handle collision
-        //this.handlePlayerCollision(playerA, playerB);
-        // custom separation function of two players to prevent pushing into a wall
-        //this.separateBodies(playerA, playerB);
 
         let bodyA = <Phaser.Physics.Arcade.Body> playerA.physicsBody;
         let bodyB = <Phaser.Physics.Arcade.Body> playerB.physicsBody;
 
-        /*bodyA.x = bodyA.prev.x;
-        bodyA.y = bodyA.prev.y;
-        bodyB.x = bodyB.prev.x;
-        bodyB.y = bodyB.prev.y;*/
-        //console.log('overlap');
         if (!this.separateBodies(playerA, playerB)) {
             // not separated yet
-            //bodyA.x = bodyA.prev.x;
-            //bodyB.x = bodyB.prev.x;
-            /*let leftBody: Phaser.Physics.Arcade.Body = bodyA;
+            // => reset position of left or right body (depends on moved body...)
+            let leftBody: Phaser.Physics.Arcade.Body = bodyA;
             let rightBody: Phaser.Physics.Arcade.Body = bodyB;
             if (bodyB.x <= bodyA.x) {
                 leftBody = bodyB;
@@ -382,9 +370,15 @@ export class GameScene extends Phaser.Scene {
             let moveLeftBody = (leftBody.x - leftBody.prev.x);
             let moveRightBody = (rightBody.x - rightBody.prev.x);
 
-            if (moveLeftBody > 0) {
-                // left body moved
-            }*/
+            if (moveLeftBody > -moveRightBody) {
+                // left body moved right
+                // => adjust position of left body
+                leftBody.x = rightBody.x - leftBody.width;
+            } else {
+                // right body moved left
+                // => adjust position of right body
+                rightBody.x = leftBody.x + leftBody.width;
+            }
         }
     }
 
@@ -542,19 +536,20 @@ export class GameScene extends Phaser.Scene {
             }
         });
         // manual player collision check, as overlap is not called every time
-        /*for (let i = 0; i < this.players.length; i++) {
+        for (let i = 0; i < this.players.length; i++) {
             let playerA = this.players[i];
             for (let j = i; j < this.players.length; j++) {
                 let playerB = this.players[j];
                 if (i != j) {
-                    if (this.physics.overlap(playerA.sprite, playerB.sprite)) {
+                    const OVERLAP_DEPTH = 5;
+                    if (playerA.sprite.body.x + OVERLAP_DEPTH < playerB.sprite.body.right && playerA.sprite.body.right - OVERLAP_DEPTH > playerB.sprite.body.x &&
+                        playerA.sprite.body.y + OVERLAP_DEPTH < playerB.sprite.body.bottom && playerA.sprite.body.bottom - OVERLAP_DEPTH > playerB.sprite.body.y) {
                         // players overlap => reset positions
-                        //console.log('overlap');
-                        //this.playersOverlap(playerA.sprite, playerB.sprite);
+                        this.playersOverlap(playerA.sprite, playerB.sprite);
                     }
                 }
             }
-        }*/
+        }
     }
 
     updateItemSpawner(time, delta) {
