@@ -4,14 +4,9 @@ import * as _ from 'underscore';
 
 import { Player } from './game/Player';
 import { KeyboardController, GamepadController, InputController } from './InputController';
+import { GameLogic, CollisionDirection } from './game/logic/GameLogic';
+import { DefaultGameLogic } from './game/logic/DefaultGameLogic';
 
-abstract class Item {
-
-}
-
-class JetpackItem {
-
-}
 
 export class GameScene extends Phaser.Scene {
     // list of all players
@@ -40,6 +35,12 @@ export class GameScene extends Phaser.Scene {
     ];
     // time till next item is spawned
     nextItemSpawn: number = 15000;
+
+
+    /**
+     * Game Logic
+     */
+    gameLogic: GameLogic = new DefaultGameLogic(this);
 
     constructor() {
         super({ key: 'GameScene' });
@@ -165,6 +166,7 @@ export class GameScene extends Phaser.Scene {
         // needed because otherwise gamepads are not detected
         setTimeout(() => {
             this._create();
+            this.gameLogic.onGameStart(this.players);
         }, 0);
     }
     _create() {
@@ -321,7 +323,7 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    spawnItem(x, y, item: Item) {
+    spawnItem(x, y) {
         let itemSprite = this.physics.add.sprite(x, y, 'jetpack_item');
         
         this.physics.add.collider(itemSprite, this.worldLayer);
@@ -350,67 +352,35 @@ export class GameScene extends Phaser.Scene {
         this.time.delayedCall(3000, () => { player.isFrozen = false; }, [], this);
     }
 
-    playersOverlap(spritePlayerA: Phaser.Physics.Arcade.Sprite, spritePlayerB: Phaser.Physics.Arcade.Sprite) {
-        // find catcher player object
-        let playerA = _.find(this.players, player => {return player.sprite === spritePlayerA});
-        let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
-
-        let bodyA = <Phaser.Physics.Arcade.Body> playerA.physicsBody;
-        let bodyB = <Phaser.Physics.Arcade.Body> playerB.physicsBody;
-
-        if (!this.separateBodies(playerA, playerB)) {
-            // not separated yet
-            // => reset position of left or right body (depends on moved body...)
-            let leftBody: Phaser.Physics.Arcade.Body = bodyA;
-            let rightBody: Phaser.Physics.Arcade.Body = bodyB;
-            if (bodyB.x <= bodyA.x) {
-                leftBody = bodyB;
-                rightBody = bodyA;
-            }
-            let moveLeftBody = (leftBody.x - leftBody.prev.x);
-            let moveRightBody = (rightBody.x - rightBody.prev.x);
-
-            if (moveLeftBody > -moveRightBody) {
-                // left body moved right
-                // => adjust position of left body
-                leftBody.x = rightBody.x - leftBody.width;
-            } else {
-                // right body moved left
-                // => adjust position of right body
-                rightBody.x = leftBody.x + leftBody.width;
-            }
-        }
-    }
 
     playersCollided(spritePlayerA: Phaser.Physics.Arcade.Sprite, spritePlayerB: Phaser.Physics.Arcade.Sprite) {
         // find catcher player object
         let playerA = _.find(this.players, player => {return player.sprite === spritePlayerA});
         let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
 
-        // handle collision
-        //this.handlePlayerCollision(playerA, playerB);
         // custom separation function of two players to prevent pushing into a wall
         this.separateBodies(playerA, playerB);
+
+        // handle collision
+        this.gameLogic.onPlayerCollision(
+            {
+                player: playerA,
+                direction: null
+            },
+            {
+                player: playerB,
+                direction: null
+            }
+        )
     }
 
-    private handlePlayerCollision(playerA: Player, playerB: Player) {
-        if (playerA.isFrozen || playerB.isFrozen) {
-            // do not allow catches during freeze time
-            return;
-        }
-        // switch catchers
-        if (playerA.isCatcher) {
-            this.setCatcher(playerB);
-        } else if (playerB.isCatcher) {
-            this.setCatcher(playerA);
-        }
-    }
 
     /**
      * Custom separation function of two (player) bodies, to prevent pushing into obstacles.
      * 
      * @param bodyA 
      * @param bodyB 
+     * @returns True if bodies got separated.
      */
     private separateBodies(playerA: Player, playerB: Player): boolean {
         let bodyA = <Phaser.Physics.Arcade.Body> playerA.physicsBody;
@@ -540,11 +510,51 @@ export class GameScene extends Phaser.Scene {
                     if (playerA.sprite.body.x + OVERLAP_DEPTH < playerB.sprite.body.right && playerA.sprite.body.right - OVERLAP_DEPTH > playerB.sprite.body.x &&
                         playerA.sprite.body.y + OVERLAP_DEPTH < playerB.sprite.body.bottom && playerA.sprite.body.bottom - OVERLAP_DEPTH > playerB.sprite.body.y) {
                         // players overlap => reset positions
-                        this.playersOverlap(playerA.sprite, playerB.sprite);
+                        this.internalPlayersOverlap(playerA.sprite, playerB.sprite);
                     }
                 }
             }
         }
+    }
+    
+    private internalPlayersOverlap(spritePlayerA: Phaser.Physics.Arcade.Sprite, spritePlayerB: Phaser.Physics.Arcade.Sprite) {
+        // find catcher player object
+        let playerA = _.find(this.players, player => {return player.sprite === spritePlayerA});
+        let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
+
+        let bodyA = <Phaser.Physics.Arcade.Body> playerA.physicsBody;
+        let bodyB = <Phaser.Physics.Arcade.Body> playerB.physicsBody;
+
+        if (!this.separateBodies(playerA, playerB)) {
+            // not separated yet
+            // => reset position of left or right body (depends on moved body...)
+            let leftBody: Phaser.Physics.Arcade.Body = bodyA;
+            let rightBody: Phaser.Physics.Arcade.Body = bodyB;
+            if (bodyB.x <= bodyA.x) {
+                leftBody = bodyB;
+                rightBody = bodyA;
+            }
+            let moveLeftBody = (leftBody.x - leftBody.prev.x);
+            let moveRightBody = (rightBody.x - rightBody.prev.x);
+
+            if (moveLeftBody > -moveRightBody) {
+                // left body moved right
+                // => adjust position of left body
+                leftBody.x = rightBody.x - leftBody.width;
+            } else {
+                // right body moved left
+                // => adjust position of right body
+                rightBody.x = leftBody.x + leftBody.width;
+            }
+        }
+
+        this.gameLogic.onPlayerCollision({
+            player: playerA,
+            direction: null
+        }, {
+            player: playerB,
+            direction: null
+        })
     }
 
     updateItemSpawner(time, delta) {
@@ -554,7 +564,7 @@ export class GameScene extends Phaser.Scene {
 
             // spawn an item at a item spawner
             let location = this.itemSpawnLocations[_.random(this.itemSpawnLocations.length - 1)];
-            this.spawnItem(location.x, location.y, null);
+            this.spawnItem(location.x, location.y);
         }
     }
 
