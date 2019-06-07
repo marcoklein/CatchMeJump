@@ -2,10 +2,10 @@ import { Player } from "../Player";
 import { GameScene } from "../../GameScene";
 
 export enum CollisionDirection {
-    TOP,
-    LEFT,
-    BOTTOM,
-    RIGHT
+    TOP = 'Top',
+    LEFT = 'Left',
+    BOTTOM = 'Bottom',
+    RIGHT = 'Right'
 }
 
 export type PlayerCollision = {

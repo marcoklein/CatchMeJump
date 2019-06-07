@@ -361,15 +361,46 @@ export class GameScene extends Phaser.Scene {
         // custom separation function of two players to prevent pushing into a wall
         this.separateBodies(playerA, playerB);
 
+        this.notifiyGameLogicPlayerCollision(playerA, playerB);
+    }
+
+    /**
+     * Called after player collision to notify the game logic about the collision.
+     * 
+     * @param playerA 
+     * @param playerB 
+     */
+    private notifiyGameLogicPlayerCollision(playerA: Player, playerB: Player) {
+        // determine direction by considering player position
+        let directionA: CollisionDirection = null;
+        let directionB: CollisionDirection = null;
+        if (playerA.physicsBody.y >= playerB.physicsBody.bottom) {
+            // playerA is under playerB
+            directionA = CollisionDirection.TOP;
+            directionB = CollisionDirection.BOTTOM;
+        } else if (playerB.physicsBody.y >= playerA.physicsBody.bottom) {
+            // playerB is under playerA
+            directionB = CollisionDirection.TOP;
+            directionA = CollisionDirection.BOTTOM;
+        } else if (playerA.physicsBody.x <= playerB.physicsBody.x) {
+            // playerA is left from playerB
+            directionA = CollisionDirection.RIGHT;
+            directionB = CollisionDirection.LEFT;
+        } else {
+            // playerA is right from playerB
+            directionA = CollisionDirection.LEFT;
+            directionB = CollisionDirection.RIGHT;
+        }
+
         // handle collision
         this.gameLogic.onPlayerCollision(
             {
                 player: playerA,
-                direction: null
+                direction: directionA
             },
             {
                 player: playerB,
-                direction: null
+                direction: directionB
             }
         )
     }
@@ -548,13 +579,7 @@ export class GameScene extends Phaser.Scene {
             }
         }
 
-        this.gameLogic.onPlayerCollision({
-            player: playerA,
-            direction: null
-        }, {
-            player: playerB,
-            direction: null
-        })
+        this.notifiyGameLogicPlayerCollision(playerA, playerB);
     }
 
     updateItemSpawner(time, delta) {

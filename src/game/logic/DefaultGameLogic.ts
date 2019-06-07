@@ -23,7 +23,6 @@ export class DefaultGameLogic implements GameLogic {
         console.log('on player leave');
     }
     onPlayerCollision(collisionA: PlayerCollision, collisionB: PlayerCollision): void {
-        console.log('on player collision');
         this.handlePlayerCollision(collisionA.player, collisionB.player);
     }
 
