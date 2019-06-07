@@ -28,6 +28,7 @@ import { MainScene } from './MainScene';
 };*/
 
 var config: Phaser.Types.Core.GameConfig = {
+    parent: '#game',
     type: Phaser.AUTO,
     backgroundColor: '#222',
     physics: {
@@ -40,10 +41,14 @@ var config: Phaser.Types.Core.GameConfig = {
         }
     },
     scale: {
-        mode: Phaser.Scale.RESIZE,
+        /*mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 800,
-        height: 600,
+        height: 600*/
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: '100%',
+        height: '100%',
         min: {
             width: 400,
             height: 300
