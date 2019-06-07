@@ -4,6 +4,7 @@ import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
 import { MainScene } from './MainScene';
+import { ControllerScene } from './scene/ControllerScene';
 
 
 
@@ -40,11 +41,10 @@ var config: Phaser.Types.Core.GameConfig = {
             //overlapBias: 16
         }
     },
+    dom: {
+        createContainer: true
+    },
     scale: {
-        /*mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 800,
-        height: 600*/
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: '100%',
@@ -66,4 +66,4 @@ var config: Phaser.Types.Core.GameConfig = {
 
 // phaser game object
 var game = new Phaser.Game(config);
-game.scene.add('MainScene', MainScene, true);
+game.scene.add('ControllerScene', ControllerScene, true);

@@ -26,7 +26,8 @@ export class MainScene extends Phaser.Scene {
         // load background
         this.load.image('background', 'assets/backgrounds/bg.png');
         // load ui
-        this.load.atlas('ui', 'assets/sprites/uipack.png', 'assets/sprites/uipack.json');
+        this.load.atlas('ui_pack', 'assets/sprites/uipack.png', 'assets/sprites/uipack.json');
+        this.load.atlas('ui_icons', 'assets/sprites/ui_icons.png', 'assets/sprites/ui_icons.json');
     }
 
     create() {
