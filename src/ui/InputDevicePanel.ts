@@ -26,11 +26,18 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
 
         // set size
         this.setSize(this.backgroundImage.width, this.backgroundImage.height);
-        
+
         // listen for clicks
         this.setInteractive();
         this.scene.input.on('gameobjectdown', this.onClick, this);
 
+    }
+
+    destroy() {
+        super.destroy();
+
+        // remove listeners
+        this.scene.input.off('gameobjectdown', this.onClick, this);
     }
 
     private onClick(pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) {
