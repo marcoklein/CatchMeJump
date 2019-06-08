@@ -49,7 +49,7 @@ export class InputDeviceScene extends Phaser.Scene {
         });
 
         // show html
-        this.sceneHTML = this.add.dom(this.game.canvas.width / 2, this.game.canvas.height / 5).createFromCache('controller_frame');
+        this.sceneHTML = this.add.dom(0, 0).createFromCache('controller_frame');
     
         //this.inputDeviceGroup = this.add.group();
         //this.add.image(0, 0, 'ui_icons', 'plus');
@@ -57,6 +57,10 @@ export class InputDeviceScene extends Phaser.Scene {
         this.addInputDevicePanel();
         this.addInputDevicePanel();
         this.addInputDevicePanel();
+        this.addInputDevicePanel();
+
+        // position all elements
+        this.reposition();
     }
 
     /**
@@ -65,13 +69,17 @@ export class InputDeviceScene extends Phaser.Scene {
     private addInputDevicePanel() {
         // find input devices container
         let $container = $('#' + INPUT_DEVICE_ID);
+        // create device panel
         let $devicePanel = $(HTML_INPUT_DEVICE_PANEL);
+
+        // append device panel to device container
         $container.append($devicePanel);
-        
+
     }
 
     private reposition() {
-        this.sceneHTML.setPosition(this.game.canvas.width / 2, this.game.canvas.height / 5);
+        this.sceneHTML.setPosition(this.scale.width / 2, this.scale.height / 4);
+        this.sceneHTML.updateSize();
         this.backgroundImage.width = this.game.scale.width * 2;
         this.backgroundImage.height = this.game.scale.height * 2;
 

@@ -47,8 +47,8 @@ var config: Phaser.Types.Core.GameConfig = {
     scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: '100%',
-        height: '100%',
+        width: 800,
+        height: 600,
         min: {
             width: 400,
             height: 300
