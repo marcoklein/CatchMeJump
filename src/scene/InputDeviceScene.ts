@@ -40,11 +40,11 @@ export class InputDeviceScene extends Phaser.Scene {
         });
 
         this.inputDeviceGrid = new Grid(this, 150, 150, 400, 400);
-        this.inputDeviceGrid.add(new InputDevicePanel(this));
-        this.inputDeviceGrid.add(new InputDevicePanel(this));
-        this.inputDeviceGrid.add(new InputDevicePanel(this));
-        this.inputDeviceGrid.add(new InputDevicePanel(this));
-        this.inputDeviceGrid.add(new InputDevicePanel(this));
+        this.inputDeviceGrid.add(new InputDevicePanel(this, 1));
+        this.inputDeviceGrid.add(new InputDevicePanel(this, 2));
+        this.inputDeviceGrid.add(new InputDevicePanel(this, 3));
+        this.inputDeviceGrid.add(new InputDevicePanel(this, 4));
+        this.inputDeviceGrid.add(new InputDevicePanel(this, 5));
 
         // position all elements
         this.reposition(this.scale.width, this.scale.height);
