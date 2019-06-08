@@ -3,14 +3,21 @@ import * as Phaser from 'phaser';
 import * as $ from 'jquery';
 import { PlayerControllerContainer } from '../ui/elements/PlayerControllerContainer';
 
+const INPUT_DEVICE_ID = 'inputDevices';
+
+const HTML_INPUT_DEVICE_PANEL =`
+<span>
+    <img src="assets/sprites/ui/grey_panel.png">
+</span>`;
+
 /**
  * Manage adding and removing of controllers.
  */
-export class ControllerScene extends Phaser.Scene {
+export class InputDeviceScene extends Phaser.Scene {
 
     backgroundImage: Phaser.GameObjects.TileSprite;
 
-    inputDevicesHTML: Phaser.GameObjects.DOMElement;
+    sceneHTML: Phaser.GameObjects.DOMElement;
 
     constructor() {
         super({ key: 'ControllerScene' });
@@ -21,6 +28,9 @@ export class ControllerScene extends Phaser.Scene {
         this.load.image('background', 'assets/backgrounds/bg.png');
         // load html
         this.load.html('controller_frame', 'assets/html/controller_frame.html');
+        // load ui
+        this.load.atlas('ui_pack', 'assets/sprites/uipack.png', 'assets/sprites/uipack.json');
+        this.load.atlas('ui_icons', 'assets/sprites/ui_icons.png', 'assets/sprites/ui_icons.json');
     }
 
     create() {
@@ -39,14 +49,33 @@ export class ControllerScene extends Phaser.Scene {
         });
 
         // show html
-        this.inputDevicesHTML = this.add.dom(this.game.canvas.width / 2, this.game.canvas.height / 5).createFromCache('controller_frame');
+        this.sceneHTML = this.add.dom(this.game.canvas.width / 2, this.game.canvas.height / 5).createFromCache('controller_frame');
+    
+        //this.inputDeviceGroup = this.add.group();
+        //this.add.image(0, 0, 'ui_icons', 'plus');
+        this.addInputDevicePanel();
+        this.addInputDevicePanel();
+        this.addInputDevicePanel();
+        this.addInputDevicePanel();
+    }
 
+    /**
+     * Adds a new input device panel to the input device html.
+     */
+    private addInputDevicePanel() {
+        // find input devices container
+        let $container = $('#' + INPUT_DEVICE_ID);
+        let $devicePanel = $(HTML_INPUT_DEVICE_PANEL);
+        $container.append($devicePanel);
+        
     }
 
     private reposition() {
-        this.inputDevicesHTML.setPosition(this.game.canvas.width / 2, this.game.canvas.height / 5);
+        this.sceneHTML.setPosition(this.game.canvas.width / 2, this.game.canvas.height / 5);
         this.backgroundImage.width = this.game.scale.width * 2;
         this.backgroundImage.height = this.game.scale.height * 2;
+
+        
     }
 
 }

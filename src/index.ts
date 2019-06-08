@@ -4,7 +4,7 @@ import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
 import { MainScene } from './MainScene';
-import { ControllerScene } from './scene/ControllerScene';
+import { InputDeviceScene } from './scene/InputDeviceScene';
 
 
 
@@ -66,4 +66,4 @@ var config: Phaser.Types.Core.GameConfig = {
 
 // phaser game object
 var game = new Phaser.Game(config);
-game.scene.add('ControllerScene', ControllerScene, true);
+game.scene.add('InputDeviceScene', InputDeviceScene, true);
