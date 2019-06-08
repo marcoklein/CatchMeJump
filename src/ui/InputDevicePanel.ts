@@ -15,14 +15,28 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
     }
 
     private init() {
+        // init images
         this.backgroundImage = this.scene.add.image(0, 0, 'ui_pack', 'grey_panel');
         this.inputDeviceIcon = this.scene.add.image(0, 0, 'ui_icons', 'plus');
         this.inputDeviceIcon.setScale(0.7);
 
+        // add images
         this.add(this.backgroundImage);
         this.add(this.inputDeviceIcon);
 
-
+        // set size
         this.setSize(this.backgroundImage.width, this.backgroundImage.height);
+        
+        // listen for clicks
+        this.setInteractive();
+        this.scene.input.on('gameobjectdown', this.onClick, this);
+
+    }
+
+    private onClick(pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) {
+        if (gameObject !== this) {
+            return;
+        }
+        this.inputDeviceIcon.setFrame('singleplayer');
     }
 }
