@@ -7,18 +7,19 @@
     "start": "npm run build && webpack-dev-server --port=8000",
     "dev": "webpack --mode development && webpack-dev-server --mode development",
     "build": "webpack --mode production",
-    "test": "echo no tests specified && exit 0"
+    "test": "echo no tests specified && exit 0",
+    "update-plugins": "download -o src/plugins https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/plugins/dist/rexuiplugin.min.js"
   },
   "author": "Marco Klein",
   "license": "MIT",
   "dependencies": {
-    "jquery": "^3.4.1",
     "phaser": "^3.17.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.29",
     "@types/underscore": "^1.8.18",
+    "download-cli": "^1.1.1",
     "expose-loader": "^0.7.5",
     "ts-loader": "^5.4.5",
     "typescript": "^3.5.1",
