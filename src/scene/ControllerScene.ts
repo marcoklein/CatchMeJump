@@ -1,9 +1,17 @@
 
 import * as Phaser from 'phaser';
+import * as $ from 'jquery';
+import { PlayerControllerContainer } from '../ui/elements/PlayerControllerContainer';
 
+/**
+ * Manage adding and removing of controllers.
+ */
 export class ControllerScene extends Phaser.Scene {
 
     backgroundImage: Phaser.GameObjects.TileSprite;
+
+    inputDevicesHTML: Phaser.GameObjects.DOMElement;
+
     constructor() {
         super({ key: 'ControllerScene' });
     }
@@ -26,15 +34,19 @@ export class ControllerScene extends Phaser.Scene {
 
         // ensure game size is set properly
         this.scale.on('resize', (gameSize: {width: number; height: number}) => {
-            this.backgroundImage.width = this.game.scale.width * 2;
-            this.backgroundImage.height = this.game.scale.height * 2;
             this.cameras.resize(gameSize.width, gameSize.height);
+            this.reposition();
         });
 
         // show html
-        let element = this.add.dom(100, 100).createFromCache('controller_frame');
-        this.add.dom(50, 200).createFromHTML('<h1>Hallo</h1>');
-        this.add.text(50, 300, 'blabla', { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
+        this.inputDevicesHTML = this.add.dom(this.game.canvas.width / 2, this.game.canvas.height / 5).createFromCache('controller_frame');
+
+    }
+
+    private reposition() {
+        this.inputDevicesHTML.setPosition(this.game.canvas.width / 2, this.game.canvas.height / 5);
+        this.backgroundImage.width = this.game.scale.width * 2;
+        this.backgroundImage.height = this.game.scale.height * 2;
     }
 
 }
