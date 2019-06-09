@@ -77,7 +77,7 @@ export class InputDeviceScene extends Phaser.Scene {
             this.reposition(gameSize.width, gameSize.height);
         });
 
-        this.inputDeviceGrid = new InputDeviceGrid(this, 150, 150, 400);
+        this.inputDeviceGrid = new InputDeviceGrid(this, 150, 200, 400);
         // add five panels
         for (let i = 0; i < 5; i++) {
             let panel = new InputDevicePanel(this, i + 1);
