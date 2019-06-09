@@ -15,9 +15,6 @@ export class Grid extends Phaser.GameObjects.Container {
     constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
         super(scene, x, y);
         this.setSize(width, 0);
-
-        // add self to scene
-        scene.add.existing(this);
     }
 
 

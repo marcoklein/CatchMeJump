@@ -1,4 +1,6 @@
 import * as Phaser from 'phaser';
+import { InputType } from 'zlib';
+import { InputDeviceType, InputDeviceOptions } from '../game/GameConfig';
 
 /**
  * Panel to manage connected gamepads and keyboards for player control.
@@ -9,13 +11,16 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
     inputDeviceIcon: Phaser.GameObjects.Image;
     deviceNumberText: Phaser.GameObjects.Text;
     deviceNumber: number;
+    /**
+     * Device type for the input configuration.
+     */
+    private _deviceType: InputDeviceType = null;
+    deviceOptions: InputDeviceOptions = null;
 
     constructor(scene: Phaser.Scene, deviceNumber: number, x?: number, y?: number) {
         super(scene, x, y);
         this.deviceNumber = deviceNumber;
         this.init();
-        
-        scene.add.existing(this);
     }
 
     private init() {
@@ -24,7 +29,7 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
         // init images
         this.backgroundImage = this.scene.add.image(0, 0, 'ui_pack', 'grey_panel');
         this.inputDeviceIcon = this.scene.add.image(0, 0, 'ui_icons', 'question');
-        this.inputDeviceIcon.setScale(0.7);
+        this.deviceType = null; // update image
         
         // add images
         this.add(this.backgroundImage);
@@ -46,23 +51,29 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
 
         // listen for clicks
         this.setInteractive();
-        this.scene.input.on('gameobjectup', this.onClick, this);
-
     }
 
-    destroy() {
-        super.destroy();
-
-        // remove listeners
-        this.scene.input.off('gameobjectup', this.onClick, this);
-    }
-
-    private onClick(pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) {
-        if (gameObject !== this) {
-            return;
+    set deviceType(type: InputDeviceType) {
+        if (type === undefined || type === null) {
+            type = null;
+            // reset icon
+            this.inputDeviceIcon.setTexture('ui_icons', 'question');
+            this.inputDeviceIcon.setDisplaySize(80, 80);
         }
-        this.inputDeviceIcon.setTexture('keyboard_icon');
-        this.inputDeviceIcon.setDisplaySize(80, 80);
-        //this.inputDeviceIcon.setTexture('ui_icons', 'gamepad');
+        this._deviceType = type;
+
+        if (type !== null) {
+            if (type === InputDeviceType.KEYBOARD) {
+                this.inputDeviceIcon.setTexture('keyboard_icon');
+                this.inputDeviceIcon.setDisplaySize(80, 80);
+            } else if (type === InputDeviceType.GAMEPAD) {
+                this.inputDeviceIcon.setTexture('ui_icons', 'gamepad');
+                this.inputDeviceIcon.setDisplaySize(80, 80);
+            }
+        }
+    }
+
+    get deviceType(): InputDeviceType {
+        return this._deviceType;
     }
 }

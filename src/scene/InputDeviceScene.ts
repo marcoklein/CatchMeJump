@@ -1,8 +1,9 @@
 
 import * as Phaser from 'phaser';
 import { InputDevicePanel } from '../ui/InputDevicePanel';
-import { Grid } from '../ui/Grid';
 import { ImageButton } from '../ui/ImageButton';
+import { InputDeviceType, InputDeviceOptions } from '../game/GameConfig';
+import { InputDeviceGrid } from '../ui/InputDeviceGrid';
 
 /**
  * Manage adding and removing of controllers.
@@ -11,10 +12,35 @@ export class InputDeviceScene extends Phaser.Scene {
 
     titleText: Phaser.GameObjects.Text;
     backgroundImage: Phaser.GameObjects.TileSprite;
-    inputDeviceGrid: Grid;
+    inputDeviceGrid: InputDeviceGrid;
 
     startButton: ImageButton;
 
+
+    /**
+     * Default keyboard configurations as input device.
+     */
+    defaultKeyboardConfigurations: InputDeviceOptions[] = [
+        {
+            type: InputDeviceType.KEYBOARD,
+            keys: {
+                left: 'A',
+                right: 'D',
+                action1: 'W',
+                action2: 'E'
+            }
+        },
+        {
+            type: InputDeviceType.KEYBOARD,
+            keys: {
+                left: 'LEFT',
+                right: 'RIGHT',
+                action1: 'UP',
+                action2: 'SPACE'
+            }
+        }
+    ];
+    usedKeyboards: number = 0;
 
     constructor() {
         super({ key: 'ControllerScene' });
@@ -51,12 +77,16 @@ export class InputDeviceScene extends Phaser.Scene {
             this.reposition(gameSize.width, gameSize.height);
         });
 
-        this.inputDeviceGrid = new Grid(this, 150, 150, 400);
-        this.inputDeviceGrid.add(new InputDevicePanel(this, 1));
-        this.inputDeviceGrid.add(new InputDevicePanel(this, 2));
-        this.inputDeviceGrid.add(new InputDevicePanel(this, 3));
-        this.inputDeviceGrid.add(new InputDevicePanel(this, 4));
-        this.inputDeviceGrid.add(new InputDevicePanel(this, 5));
+        this.inputDeviceGrid = new InputDeviceGrid(this, 150, 150, 400);
+        // add five panels
+        for (let i = 0; i < 5; i++) {
+            let panel = new InputDevicePanel(this, i + 1);
+            panel.on('pointerup', () => {
+                this.handleInputDevicePanelClick(panel);
+            }, this);
+            this.inputDeviceGrid.add(panel);
+        }
+        this.add.existing(this.inputDeviceGrid);
 
         // position all elements
         this.reposition(this.scale.width, this.scale.height);
@@ -78,6 +108,21 @@ export class InputDeviceScene extends Phaser.Scene {
             width * 0.5,
             this.inputDeviceGrid.y + this.inputDeviceGrid.height
         );
+    }
+
+    private handleInputDevicePanelClick(panel: InputDevicePanel) {
+        // count available keyboards
+        if (panel.deviceType === null && this.usedKeyboards < this.defaultKeyboardConfigurations.length) {
+            // add new keyboard
+            panel.deviceType = InputDeviceType.KEYBOARD;
+            panel.deviceOptions = this.defaultKeyboardConfigurations.shift();
+        } else if (panel.deviceType === InputDeviceType.KEYBOARD) {
+            // remove existing keyboard
+            panel.deviceType = null;
+            // add keyboard options to available list
+            this.defaultKeyboardConfigurations.push(panel.deviceOptions);
+            panel.deviceOptions = null;
+        }
     }
 
 }
