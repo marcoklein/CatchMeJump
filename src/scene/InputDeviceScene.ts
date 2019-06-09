@@ -4,6 +4,8 @@ import { InputDevicePanel } from '../ui/InputDevicePanel';
 import { ImageButton } from '../ui/ImageButton';
 import { InputDeviceType, InputDeviceOptions } from '../game/GameConfig';
 import { InputDeviceGrid } from '../ui/InputDeviceGrid';
+import { GameScene } from '../GameScene';
+import { HudScene } from '../HudScene';
 
 /**
  * Manage adding and removing of controllers.
@@ -43,7 +45,7 @@ export class InputDeviceScene extends Phaser.Scene {
     usedKeyboards: number = 0;
 
     constructor() {
-        super({ key: 'ControllerScene' });
+        super({ key: 'InputDeviceScene' });
     }
 
     preload() {
@@ -58,6 +60,12 @@ export class InputDeviceScene extends Phaser.Scene {
     }
 
     create() {
+        // be sure to set default registry keys
+        if (!this.registry.get('playerCount')) {
+            // two players per default
+            this.registry.set('playerCount', 2);
+        }
+        
         // set background image
         this.backgroundImage = this.add.tileSprite(0, 0, this.game.scale.width * 2, this.game.scale.height * 2, 'background');
 
@@ -66,7 +74,7 @@ export class InputDeviceScene extends Phaser.Scene {
 
         // add buttons
         this.startButton = new ImageButton(this, 0, 0, 'ui_icons', 'buttonStart', () => {
-            console.log('start button clicked');
+            this.startGame();
         });
         this.add.existing(this.startButton);
 
@@ -123,6 +131,20 @@ export class InputDeviceScene extends Phaser.Scene {
             this.defaultKeyboardConfigurations.push(panel.deviceOptions);
             panel.deviceOptions = null;
         }
+    }
+    
+    /**
+     * Starts a new game by create a game scene.
+     */
+    private startGame() {
+        console.log('new game')
+
+        //this.scene.start('GameScene');
+        //this.scene.start('HudScene');
+        // start game
+        this.scene.stop('InputDeviceScene');
+        this.scene.add('GameScene', GameScene, true);
+        this.scene.add('HudScene', HudScene, true);
     }
 
 }
