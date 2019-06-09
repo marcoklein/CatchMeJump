@@ -46,7 +46,7 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
 
         // listen for clicks
         this.setInteractive();
-        this.scene.input.on('gameobjectdown', this.onClick, this);
+        this.scene.input.on('gameobjectup', this.onClick, this);
 
     }
 
@@ -54,7 +54,7 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
         super.destroy();
 
         // remove listeners
-        this.scene.input.off('gameobjectdown', this.onClick, this);
+        this.scene.input.off('gameobjectup', this.onClick, this);
     }
 
     private onClick(pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) {

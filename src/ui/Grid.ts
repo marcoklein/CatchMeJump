@@ -12,9 +12,9 @@ export class Grid extends Phaser.GameObjects.Container {
      */
     centering: boolean = true;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
+    constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
         super(scene, x, y);
-        this.setSize(width, height);
+        this.setSize(width, 0);
 
         // add self to scene
         scene.add.existing(this);
@@ -47,6 +47,10 @@ export class Grid extends Phaser.GameObjects.Container {
         }
 
         this.list.forEach((object: any, index) => {
+            // adjust height if grid depending on added childs
+            if (object.height > this.height) {
+                this.height = object.height;
+            }
             object.x = currentX;
             object.y = 0;
             currentX += object.width + this.horizontalOffset;
