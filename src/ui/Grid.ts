@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import * as _ from 'underscore';
 
 /**
  * Grid.
@@ -6,6 +7,10 @@ import * as Phaser from 'phaser';
 export class Grid extends Phaser.GameObjects.Container {
 
     horizontalOffset: number = 10;
+    /**
+     * True to center all children.
+     */
+    centering: boolean = true;
 
     constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
         super(scene, x, y);
@@ -29,6 +34,18 @@ export class Grid extends Phaser.GameObjects.Container {
     refreshPositions() {
         // TODO break into next row
         let currentX = 0;
+        if (this.centering) {
+            // adjust start x to center content
+            let totalChildrenWidth = 0;
+            // calculate total width of all children
+            this.list.forEach((object: any, index) => {
+                totalChildrenWidth += object.width + (index + 1 === this.list.length ? 0 : this.horizontalOffset);
+            });
+
+            // adjust start x
+            currentX = totalChildrenWidth / this.list.length;
+        }
+
         this.list.forEach((object: any, index) => {
             object.x = currentX;
             object.y = 0;
