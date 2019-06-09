@@ -23,7 +23,7 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
         this.setSize(100, 100);
         // init images
         this.backgroundImage = this.scene.add.image(0, 0, 'ui_pack', 'grey_panel');
-        this.inputDeviceIcon = this.scene.add.image(0, 0, 'ui_icons', 'plus');
+        this.inputDeviceIcon = this.scene.add.image(0, 0, 'ui_icons', 'question');
         this.inputDeviceIcon.setScale(0.7);
         
         // add images
@@ -61,7 +61,8 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
         if (gameObject !== this) {
             return;
         }
-        //this.inputDeviceIcon.setFrame('singleplayer');
-        this.inputDeviceIcon.setFrame('gamepad');
+        this.inputDeviceIcon.setTexture('keyboard_icon');
+        this.inputDeviceIcon.setDisplaySize(80, 80);
+        //this.inputDeviceIcon.setTexture('ui_icons', 'gamepad');
     }
 }

@@ -23,6 +23,7 @@ export class InputDeviceScene extends Phaser.Scene {
         // load html
         this.load.html('controller_frame', 'assets/html/controller_frame.html');
         // load ui
+        this.load.image('keyboard_icon', 'assets/sprites/keyboard.png');
         this.load.atlas('ui_pack', 'assets/sprites/uipack.png', 'assets/sprites/uipack.json');
         this.load.atlas('ui_icons', 'assets/sprites/ui_icons.png', 'assets/sprites/ui_icons.json');
     }
