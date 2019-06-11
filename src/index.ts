@@ -30,14 +30,8 @@ var config: Phaser.Types.Core.GameConfig = {
     parent: '#game',
     type: Phaser.AUTO,
     backgroundColor: '#222',
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 900 },
-            //debug: true,
-            tileBias: 70 // prevent falling through tiles... (tile size of tilemap)
-            //overlapBias: 16
-        }
+    fps: {
+        target: 60
     },
     dom: {
         createContainer: true

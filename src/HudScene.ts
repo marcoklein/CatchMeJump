@@ -21,6 +21,9 @@ export class HudScene extends Phaser.Scene {
     // true if game is finished
     finished: boolean = false;
 
+    showFps: boolean = false;
+    fpsText: Phaser.GameObjects.Text;
+
     constructor() {
         super({ key: 'HudScene' });
     }
@@ -31,6 +34,10 @@ export class HudScene extends Phaser.Scene {
     }
 
     create() {
+        // create fps text
+        this.fpsText = this.add.text(200, 5, '' + this.game.loop.actualFps, { fontSize: '32px', color: '#777' });
+        this.fpsText.setVisible(this.showFps);
+        
         //this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#555'});
         //let info = this.add.text(10, 10, 'Score: 0', { font: '48px Arial', fill: '#000000' });
         
@@ -52,6 +59,9 @@ export class HudScene extends Phaser.Scene {
 
     scalefactor = 0.5;
     update() {
+        // update fps info
+        if (this.showFps) this.fpsText.setText('' + this.game.loop.actualFps);
+
         // position time text at top right
         this.timeText.x = this.game.canvas.width - this.timeText.width - 10;
         this.timeText.text = Math.round(this.gameScene.remainingGameTime / 1000) + 's';

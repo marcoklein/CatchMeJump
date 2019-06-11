@@ -50,7 +50,20 @@ export class GameScene extends Phaser.Scene {
     gameLogic: GameLogic = new DefaultGameLogic(this);
 
     constructor() {
-        super({ key: 'GameScene' });
+        super({
+            key: 'GameScene',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 900 },
+                    //fps: 60,
+                    timeScale: 1,
+                    debug: false,
+                    tileBias: 70 // prevent falling through tiles... (tile size of tilemap)
+                    //overlapBias: 16
+                }
+            }
+        });
     }
     
     preload() {
@@ -78,9 +91,9 @@ export class GameScene extends Phaser.Scene {
         this.load.image('industrial_tiles', 'assets/tiles/industrial.png');
 
         let maps = [
-            '/assets/tilemaps/marcs_world.json',
-            '/assets/tilemaps/standard.json',
-            '/assets/tilemaps/flat.json',
+            //'/assets/tilemaps/marcs_world.json',
+            '/assets/tilemaps/standard.json'
+            /*'/assets/tilemaps/flat.json',
             '/assets/tilemaps/catchmejump1.json',
             '/assets/tilemaps/catchmejump2.json',
             '/assets/tilemaps/catchmejump3.json',
@@ -91,7 +104,7 @@ export class GameScene extends Phaser.Scene {
             '/assets/tilemaps/spring.json',
             '/assets/tilemaps/lost.json',
             '/assets/tilemaps/itemize.json',
-            '/assets/tilemaps/ultimate.json'
+            '/assets/tilemaps/ultimate.json'*/
         ];
         // load a random map
         this.mapIndex = _.random(maps.length - 1);
@@ -138,6 +151,7 @@ export class GameScene extends Phaser.Scene {
             this.gameLogic.onGameStart(this.players);
         }, 0);
     }
+
     _create() {
 
         //  First create a particle manager
@@ -432,13 +446,14 @@ export class GameScene extends Phaser.Scene {
     /**
      * Updates camera position too always see all players.
      */
-    updateCameraPosition(cam) {
+    updateCameraPosition(cam: Phaser.Cameras.Scene2D.Camera) {
+        
         const CAM_OFFSET = 600;
         const MIN_OFFSET = 400;
 
         // determine player bounds (area all players lay in)
         var playerBounds = {
-            x1: null, y1: null, x2: null, y2: null,
+            x1: <any> null, y1: <any> null, x2: <any> null, y2: <any> null,
             get width() {
                 return Math.max(this.x2 - this.x1, MIN_OFFSET) + CAM_OFFSET;
             },
@@ -447,42 +462,39 @@ export class GameScene extends Phaser.Scene {
             }
         }
         // determine edges of player area
-        this.players.forEach(player => {
-            if (playerBounds.x1 === null || player.sprite.x < playerBounds.x1) {
+        this.players.forEach(playerItem => {
+            let playerSprite = playerItem.sprite;
+
+            if (playerBounds.x1 === null || playerSprite.x < playerBounds.x1) {
                 // player is further to the left
-                playerBounds.x1 = player.sprite.x;
+                playerBounds.x1 = playerSprite.x;
             }
-            if (playerBounds.x2 === null || player.sprite.x > playerBounds.x2) {
+            if (playerBounds.x2 === null || playerSprite.x > playerBounds.x2) {
                 // player is further to the right
-                playerBounds.x2 = player.sprite.x;
+                playerBounds.x2 = playerSprite.x;
             }
-            if (playerBounds.y1 === null || player.sprite.y < playerBounds.y1) {
+            if (playerBounds.y1 === null || playerSprite.y < playerBounds.y1) {
                 // player is further to the top
-                playerBounds.y1 = player.sprite.y;
+                playerBounds.y1 = playerSprite.y;
             }
-            if (playerBounds.y2 === null || player.sprite.y > playerBounds.y2) {
+            if (playerBounds.y2 === null || playerSprite.y > playerBounds.y2) {
                 // player is further to the bottom
-                playerBounds.y2 = player.sprite.y;
+                playerBounds.y2 = playerSprite.y;
             }
         });
 
         // calculate center point
-        cam.pan(
+        cam.centerOn(
             (playerBounds.x2 - playerBounds.x1) / 2 + playerBounds.x1, // x position
-            (playerBounds.y2 - playerBounds.y1) / 2 + playerBounds.y1, // y position
-            100,
-            'Linear'
+            (playerBounds.y2 - playerBounds.y1) / 2 + playerBounds.y1 // y position
         );
 
         // calculate scale ratio
         let zoomX = playerBounds.width / cam.width;
         let zoomY = playerBounds.height / cam.height;
 
-        // zoom smoothly to desired scale
-        cam.zoomTo(
-            1 / Math.max(zoomX, zoomY),
-            100,
-            'Linear'
+        cam.setZoom(
+            1 / Math.max(zoomX, zoomY)
         );
 
     }
@@ -561,7 +573,7 @@ export class GameScene extends Phaser.Scene {
         console.log('pre update');
     }
 
-    update(time, delta) {
+    update(time: number, delta: number) {
         //this.physics.world.gravity = new Phaser.Math.Vector2(0, 400);
         if (this.remainingGameTime > 0) {
             // game is running
