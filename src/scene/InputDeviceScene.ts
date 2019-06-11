@@ -156,7 +156,7 @@ export class InputDeviceScene extends Phaser.Scene {
     private startGame() {
         // prepare game config
         let gameConfig: GameSceneConfig = {
-            tilemapPath: '/assets/tilemaps/flat.json',
+            //tilemapPath: '/assets/tilemaps/flat.json',
             players: []
         };
         // fill game config with players
@@ -171,6 +171,11 @@ export class InputDeviceScene extends Phaser.Scene {
             }
         });
         this.registry.set('gameConfig', gameConfig);
+
+        // do not start game without players
+        if (gameConfig.players.length < 1) {
+            return;
+        }
 
         //this.scene.start('GameScene');
         //this.scene.start('HudScene');
