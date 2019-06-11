@@ -182,7 +182,13 @@ export class InputDeviceScene extends Phaser.Scene {
     }
 
     private onGamepadDisconnected(pad: Phaser.Input.Gamepad.Gamepad) {
-        console.log('gamepad disconnected');
+        let panel = (<InputDevicePanel[]> this.inputDeviceGrid.list).find((panel) => {
+            // find panel with device options type gamepad and index of the pad
+            return panel.deviceOptions && panel.deviceOptions.type === InputDeviceType.GAMEPAD &&
+                panel.deviceOptions.index === pad.index;
+        });
+        // remove gamepad
+        panel.deviceOptions = null;
     }
 
     /**
