@@ -18,6 +18,7 @@ export class InputDeviceScene extends Phaser.Scene {
     backgroundImage: Phaser.GameObjects.TileSprite;
     inputDeviceGrid: InputDeviceGrid;
 
+    startingGame: boolean = false;
     startButton: ImageButton;
 
     /**
@@ -76,9 +77,20 @@ export class InputDeviceScene extends Phaser.Scene {
     }
 
     create() {
+        this.startingGame = false;
         this.initGamepadListeners();
         this.initUserInterface();
         this.initResizing();
+    }
+
+    update(time: number, delta: number) {
+        // listen for gamepad start button
+        this.input.gamepad.gamepads.forEach((pad) => {
+            if (pad.buttons[9].pressed) {
+                this.startGame();
+                return;
+            }
+        })
     }
 
 
@@ -155,6 +167,7 @@ export class InputDeviceScene extends Phaser.Scene {
      * @param pad Connected gamepad.
      */
     private onGamepadConnected(pad: Phaser.Input.Gamepad.Gamepad) {
+        // update panels
         let panel = this.inputDeviceGrid.findNextFreePanel();
         if (!panel) {
             // no free space
@@ -195,6 +208,10 @@ export class InputDeviceScene extends Phaser.Scene {
      * Starts a new game by create a game scene.
      */
     private startGame() {
+        if (this.startingGame) {
+            return;
+        }
+        this.startingGame = true;
         // prepare game config
         let gameConfig: GameSceneConfig = {
             //tilemapPath: '/assets/tilemaps/flat.json',
@@ -215,6 +232,7 @@ export class InputDeviceScene extends Phaser.Scene {
 
         // do not start game without players
         if (gameConfig.players.length < 1) {
+            console.warn('Cannot start game without players.');
             return;
         }
 
