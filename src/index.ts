@@ -6,8 +6,6 @@ import * as _ from 'underscore';
 import { MainScene } from './MainScene';
 import { InputDeviceScene } from './scene/InputDeviceScene';
 
-import Plugins from './plugins/rexuiplugin.min.js';
-
 /*let config: GameConfig = {
     type: Phaser.AUTO,
     parent: 'CatchMeJump',
@@ -57,11 +55,6 @@ var config: Phaser.Types.Core.GameConfig = {
             width: 1600,
             height: 1200
         }
-    },
-    plugins: {
-        global: [
-            { key: 'rexuiplugin', plugin: Plugins}
-        ]
     },
     input: {
         gamepad: true
