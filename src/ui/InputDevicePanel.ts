@@ -11,11 +11,8 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
     inputDeviceIcon: Phaser.GameObjects.Image;
     deviceNumberText: Phaser.GameObjects.Text;
     deviceNumber: number;
-    /**
-     * Device type for the input configuration.
-     */
-    private _deviceType: InputDeviceType = null;
-    deviceOptions: InputDeviceOptions = null;
+
+    private _deviceOptions: InputDeviceOptions = null;
 
     constructor(scene: Phaser.Scene, deviceNumber: number, x?: number, y?: number) {
         super(scene, x, y);
@@ -29,7 +26,7 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
         // init images
         this.backgroundImage = this.scene.add.image(0, 0, 'ui_pack', 'grey_panel');
         this.inputDeviceIcon = this.scene.add.image(0, 0, 'ui_icons', 'question');
-        this.deviceType = null; // update image
+        this.deviceOptions = null; // update image
         
         // add images
         this.add(this.backgroundImage);
@@ -53,27 +50,25 @@ export class InputDevicePanel extends Phaser.GameObjects.Container {
         this.setInteractive();
     }
 
-    set deviceType(type: InputDeviceType) {
-        if (type === undefined || type === null) {
-            type = null;
+    set deviceOptions(deviceOptions: InputDeviceOptions) {
+        if (deviceOptions === undefined || deviceOptions === null) {
             // reset icon
             this.inputDeviceIcon.setTexture('ui_icons', 'question');
             this.inputDeviceIcon.setDisplaySize(80, 80);
         }
-        this._deviceType = type;
+        this._deviceOptions = deviceOptions;
 
-        if (type !== null) {
-            if (type === InputDeviceType.KEYBOARD) {
+        if (deviceOptions !== null) {
+            if (deviceOptions.type === InputDeviceType.KEYBOARD) {
                 this.inputDeviceIcon.setTexture('keyboard_icon');
                 this.inputDeviceIcon.setDisplaySize(80, 80);
-            } else if (type === InputDeviceType.GAMEPAD) {
+            } else if (deviceOptions.type === InputDeviceType.GAMEPAD) {
                 this.inputDeviceIcon.setTexture('ui_icons', 'gamepad');
                 this.inputDeviceIcon.setDisplaySize(80, 80);
             }
         }
     }
-
-    get deviceType(): InputDeviceType {
-        return this._deviceType;
+    get deviceOptions(): InputDeviceOptions {
+        return this._deviceOptions;
     }
 }

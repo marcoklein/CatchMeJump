@@ -20,12 +20,17 @@ export enum InputDeviceType {
 
 export type InputDeviceOptions = {
     type: InputDeviceType,
+    /**
+     * Keys are set, if the type is KEYBOARD.
+     */
     keys?: {
         left: string,
         right: string,
         jump: string,
         action1: string
-    }, // for type keyboard
-    id?: string, // for type gamepad
+    },
+    /**
+     * If the type is GAMEPAD the index specifies the gamepad.
+     */
     index?: number
 }

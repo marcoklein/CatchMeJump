@@ -76,7 +76,23 @@ export class InputDeviceScene extends Phaser.Scene {
     }
 
     create() {
+        this.initGamepadListeners();
+        this.initUserInterface();
+        this.initResizing();
+    }
 
+
+    private initGamepadListeners() {
+        this.input.gamepad.on('connected', this.onGamepadConnected, this);
+        this.input.gamepad.on('disconnected', this.onGamepadDisconnected, this);
+
+        this.input.gamepad.gamepads.forEach((pad) => {
+            this.onGamepadConnected(pad);
+        });
+    }
+
+
+    private initUserInterface() {
         // set background image
         this.backgroundImage = this.add.tileSprite(0, 0, this.game.scale.width * 2, this.game.scale.height * 2, 'background');
 
@@ -89,13 +105,6 @@ export class InputDeviceScene extends Phaser.Scene {
         });
         this.add.existing(this.startButton);
 
-
-        // ensure game size is set properly
-        this.scale.on('resize', (gameSize: {width: number; height: number}) => {
-            this.cameras.resize(gameSize.width, gameSize.height);
-            this.reposition(gameSize.width, gameSize.height);
-        });
-
         this.inputDeviceGrid = new InputDeviceGrid(this, 150, 200, 400);
         // add five panels
         for (let i = 0; i < 5; i++) {
@@ -106,6 +115,14 @@ export class InputDeviceScene extends Phaser.Scene {
             this.inputDeviceGrid.add(panel);
         }
         this.add.existing(this.inputDeviceGrid);
+    }
+
+    private initResizing() {
+        // ensure game size is set properly
+        this.scale.on('resize', (gameSize: {width: number; height: number}) => {
+            this.cameras.resize(gameSize.width, gameSize.height);
+            this.reposition(gameSize.width, gameSize.height);
+        });
 
         // position all elements
         this.reposition(this.scale.width, this.scale.height);
@@ -130,6 +147,32 @@ export class InputDeviceScene extends Phaser.Scene {
     }
 
     /**
+     * A gamepad connected to the input manager.
+     * Called for each gamepad when the scene is created.
+     * 
+     * Adds a gamepad control to the input device list.
+     * 
+     * @param pad Connected gamepad.
+     */
+    private onGamepadConnected(pad: Phaser.Input.Gamepad.Gamepad) {
+        let panel = this.inputDeviceGrid.findNextFreePanel();
+        if (!panel) {
+            // no free space
+            console.warn('Gamepad connected, but there is not enough space.');
+            return;
+        }
+        // assign gamepad to panel
+        panel.deviceOptions = {
+            type: InputDeviceType.GAMEPAD,
+            index: pad.index
+        };
+    }
+
+    private onGamepadDisconnected(pad: Phaser.Input.Gamepad.Gamepad) {
+        console.log('gamepad disconnected');
+    }
+
+    /**
      * Handles the click on an input device panel.
      * Adds a keyboard control if possible.
      * 
@@ -137,15 +180,13 @@ export class InputDeviceScene extends Phaser.Scene {
      */
     private handleInputDevicePanelClick(panel: InputDevicePanel) {
         // count available keyboards
-        if (panel.deviceType === null && this.usedKeyboards < this.defaultKeyboardConfigurations.length) {
+        if (!panel.deviceOptions && this.usedKeyboards < this.defaultKeyboardConfigurations.length) {
             // add new keyboard
-            panel.deviceType = InputDeviceType.KEYBOARD;
             panel.deviceOptions = this.defaultKeyboardConfigurations.shift();
-        } else if (panel.deviceType === InputDeviceType.KEYBOARD) {
-            // remove existing keyboard
-            panel.deviceType = null;
+        } else if (panel.deviceOptions.type === InputDeviceType.KEYBOARD) {
             // add keyboard options to available list
             this.defaultKeyboardConfigurations.push(panel.deviceOptions);
+            // remove existing keyboard
             panel.deviceOptions = null;
         }
     }
