@@ -1,8 +1,12 @@
-import { InputController } from "../InputController";
+import { InputController, GamepadController, KeyboardController } from "../InputController";
 import { GameScene } from "../GameScene";
 import { Effect } from "./Effect";
+import { InputDeviceOptions, InputDeviceType } from "./GameConfig";
 
 export class Player {
+
+    readonly scene: Phaser.Scene;
+
     isCatcher: boolean;
     isFrozen: boolean; // true if player cant move
     inputController: InputController;
@@ -39,8 +43,8 @@ export class Player {
 
     effects: Effect[];
     
-    constructor(inputController: InputController, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string) {
-        this.inputController = inputController;
+    constructor(scene: Phaser.Scene, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string, inputOptions: InputDeviceOptions) {
+        this.scene = scene;
         this.sprite = sprite;
         this.physicsBody = <Phaser.Physics.Arcade.Body> this.sprite.body;
         this.animationPrefix = animationPrefix;
@@ -50,6 +54,28 @@ export class Player {
             jump: this.animationPrefix + '_jump',
             hurt: this.animationPrefix + '_hurt'
         };
+
+        this.initInputController(inputOptions)
+    }
+    
+    /**
+     * Init controls for this player.
+     */
+    private initInputController(inputOptions: InputDeviceOptions) {
+        if (inputOptions.type === InputDeviceType.KEYBOARD) {
+            // keyboard input
+            this.inputController = new KeyboardController(
+                this.scene.input,
+                inputOptions.keys
+            );
+        } else if (inputOptions.type === InputDeviceType.GAMEPAD) {
+            this.inputController = new GamepadController(
+                inputOptions.index
+            )
+        } else {
+            // other
+            console.error('No game input implementation for ' + inputOptions.type);
+        }
     }
 
     createAnimations(anims: any) {

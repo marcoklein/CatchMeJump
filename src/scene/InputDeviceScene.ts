@@ -2,10 +2,12 @@
 import * as Phaser from 'phaser';
 import { InputDevicePanel } from '../ui/InputDevicePanel';
 import { ImageButton } from '../ui/ImageButton';
-import { InputDeviceType, InputDeviceOptions } from '../game/GameConfig';
+import { InputDeviceType, InputDeviceOptions, GameSceneConfig, GamePlayerConfig } from '../game/GameConfig';
 import { InputDeviceGrid } from '../ui/InputDeviceGrid';
 import { GameScene } from '../GameScene';
 import { HudScene } from '../HudScene';
+
+const PLAYER_TEXTURES = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];
 
 /**
  * Manage adding and removing of controllers.
@@ -18,6 +20,11 @@ export class InputDeviceScene extends Phaser.Scene {
 
     startButton: ImageButton;
 
+    /**
+     * Stores all players for the game.
+     */
+    gamePlayerConfig: GamePlayerConfig[];
+
 
     /**
      * Default keyboard configurations as input device.
@@ -28,8 +35,8 @@ export class InputDeviceScene extends Phaser.Scene {
             keys: {
                 left: 'A',
                 right: 'D',
-                action1: 'W',
-                action2: 'E'
+                jump: 'W',
+                action1: 'E'
             }
         },
         {
@@ -37,8 +44,17 @@ export class InputDeviceScene extends Phaser.Scene {
             keys: {
                 left: 'LEFT',
                 right: 'RIGHT',
-                action1: 'UP',
-                action2: 'SPACE'
+                jump: 'UP',
+                action1: 'SPACE'
+            }
+        },
+        {
+            type: InputDeviceType.KEYBOARD,
+            keys: {
+                left: 'H',
+                right: 'K',
+                jump: 'U',
+                action1: 'I'
             }
         }
     ];
@@ -60,12 +76,7 @@ export class InputDeviceScene extends Phaser.Scene {
     }
 
     create() {
-        // be sure to set default registry keys
-        if (!this.registry.get('playerCount')) {
-            // two players per default
-            this.registry.set('playerCount', 2);
-        }
-        
+
         // set background image
         this.backgroundImage = this.add.tileSprite(0, 0, this.game.scale.width * 2, this.game.scale.height * 2, 'background');
 
@@ -118,6 +129,12 @@ export class InputDeviceScene extends Phaser.Scene {
         );
     }
 
+    /**
+     * Handles the click on an input device panel.
+     * Adds a keyboard control if possible.
+     * 
+     * @param panel 
+     */
     private handleInputDevicePanelClick(panel: InputDevicePanel) {
         // count available keyboards
         if (panel.deviceType === null && this.usedKeyboards < this.defaultKeyboardConfigurations.length) {
@@ -137,7 +154,23 @@ export class InputDeviceScene extends Phaser.Scene {
      * Starts a new game by create a game scene.
      */
     private startGame() {
-        console.log('new game')
+        // prepare game config
+        let gameConfig: GameSceneConfig = {
+            tilemapPath: '/assets/tilemaps/flat.json',
+            players: []
+        };
+        // fill game config with players
+        this.inputDeviceGrid.list.forEach((panel: InputDevicePanel, index: number) => {
+            if (panel.deviceOptions) {
+                // add player configs
+                gameConfig.players.push({
+                    name: 'Player ' + (index + 1),
+                    texture: PLAYER_TEXTURES[index],
+                    input: panel.deviceOptions
+                });
+            }
+        });
+        this.registry.set('gameConfig', gameConfig);
 
         //this.scene.start('GameScene');
         //this.scene.start('HudScene');

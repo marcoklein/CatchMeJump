@@ -49,20 +49,25 @@ export class GamepadController extends InputController {
 }
 
 export class KeyboardController extends InputController {
-    cursors: any;
+    keys: { left: Phaser.Input.Keyboard.Key; right: Phaser.Input.Keyboard.Key; jump: Phaser.Input.Keyboard.Key; action1: Phaser.Input.Keyboard.Key; };
 
-    constructor(cursors) {
+    constructor(input: Phaser.Input.InputPlugin, keys: { left: string; right: string; jump: string; action1: string; }) {
         super();
-        this.cursors = cursors;
+        this.keys = {
+            left: input.keyboard.addKey(keys.left),
+            right: input.keyboard.addKey(keys.right),
+            jump: input.keyboard.addKey(keys.jump),
+            action1: input.keyboard.addKey(keys.action1)
+        };
     }
 
-    update(input) {
+    update(input: Phaser.Input.InputPlugin) {
         // reset movements
         this.actions = {
-            left: this.cursors.left.isDown,
-            right: this.cursors.right.isDown,
-            jump: this.cursors.up.isDown,
-            action1: this.cursors.down.isDown
+            left: this.keys.left.isDown,
+            right: this.keys.right.isDown,
+            jump: this.keys.jump.isDown,
+            action1: this.keys.action1.isDown
         }
     }
 }

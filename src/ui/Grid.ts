@@ -36,7 +36,7 @@ export class Grid extends Phaser.GameObjects.Container {
             let totalChildrenWidth = 0;
             // calculate total width of all children
             this.list.forEach((object: any, index) => {
-                totalChildrenWidth += object.width + (index + 1 === this.list.length ? 0 : this.horizontalOffset);
+                totalChildrenWidth += object.width + this.horizontalOffset;//(index + 1 === this.list.length ? 0 : this.horizontalOffset);
             });
 
             // adjust start x

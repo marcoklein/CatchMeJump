@@ -4,11 +4,13 @@ export type GameSceneConfig = {
     tilemapPath?: string,
 
     // array of players playing the game
-    players?: Array<{
-        name?: string,
-        texture?: string,
-        input?: InputDeviceOptions
-    }>
+    players?: GamePlayerConfig[]
+};
+
+export type GamePlayerConfig = {
+    name?: string,
+    texture?: string,
+    input?: InputDeviceOptions
 };
 
 export enum InputDeviceType {
@@ -17,12 +19,12 @@ export enum InputDeviceType {
 }
 
 export type InputDeviceOptions = {
-    type?: InputDeviceType,
+    type: InputDeviceType,
     keys?: {
         left: string,
         right: string,
-        action1: string,
-        action2: string
+        jump: string,
+        action1: string
     }, // for type keyboard
     id?: string, // for type gamepad
     index?: number

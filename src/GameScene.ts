@@ -6,9 +6,16 @@ import { Player } from './game/Player';
 import { KeyboardController, GamepadController, InputController } from './InputController';
 import { GameLogic, CollisionDirection } from './game/logic/GameLogic';
 import { DefaultGameLogic } from './game/logic/DefaultGameLogic';
+import { GameSceneConfig, InputDeviceOptions } from './game/GameConfig';
 
 
 export class GameScene extends Phaser.Scene {
+
+    /**
+     * Game configuration given by the previous scene that started the game.
+     */
+    gameConfig: GameSceneConfig;
+
     // list of all players
     players: Player[] = [];
     // effect that marks catcher
@@ -47,6 +54,10 @@ export class GameScene extends Phaser.Scene {
     }
     
     preload() {
+        // load game config
+        this.gameConfig = this.registry.get('gameConfig');
+        console.log(this.gameConfig);
+        
         // load players
         this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
 
@@ -97,13 +108,13 @@ export class GameScene extends Phaser.Scene {
      * @param imageName 
      * @param controller 
      */
-    createPlayer(x, y, imageName, controller: InputController) {
+    createPlayer(x: number, y: number, imageName: string, inputOptions: InputDeviceOptions) {
         let sprite = this.physics.add.sprite(x, y, 'players', imageName + '_stand');
         sprite.setCollideWorldBounds(true);
         sprite.setSize(56, 88);
         sprite.setMaxVelocity(1000, 1200);
 
-        let player = new Player(controller, sprite, imageName);
+        let player = new Player(this, sprite, imageName, inputOptions);
 
         return player;
 
@@ -112,55 +123,13 @@ export class GameScene extends Phaser.Scene {
     /**
      * Create all player and add them to this.players
      */
-    createPlayers() {
-        
-        let keyboardInputs = [
-            new KeyboardController(
-                this.input.keyboard.addKeys(
-                    {
-                        up: Phaser.Input.Keyboard.KeyCodes.UP,
-                        down: Phaser.Input.Keyboard.KeyCodes.ALT,
-                        left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-                        right: Phaser.Input.Keyboard.KeyCodes.RIGHT
-                    }
-                )
-            ),
-            new KeyboardController(
-                this.input.keyboard.addKeys(
-                    {
-                        up: Phaser.Input.Keyboard.KeyCodes.W,
-                        down: Phaser.Input.Keyboard.KeyCodes.SPACE,
-                        left: Phaser.Input.Keyboard.KeyCodes.A,
-                        right: Phaser.Input.Keyboard.KeyCodes.D
-                    }
-                )
-            )
-        ];
-        let alienNames = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];
-        // add input controllers depending on available gamepads
-        let playerCount = this.registry.values.playerCount;
-        let gamepadCount = this.input.gamepad.gamepads.length;
-        console.log('gamepad enables', this.input.gamepad.enabled);
-        console.log('Adding %i players.', playerCount);
-        console.log(this.input.gamepad.gamepads);
-        console.log('%i gamepads are available.', gamepadCount);
-        let originalGamepadCount = 0;
-        gamepadCount = 0;
-        /*for (let i = 0; i < gamepadCount; i++) {
-            this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], new GamepadController(i)));
-        }*/
-        for (let i = 0; i < playerCount; i++) {
-            // add gamepad controllers first, then add keyboard controllers
-            if (gamepadCount > 0) {
-                this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], new GamepadController(gamepadCount - 1)));
-                gamepadCount--;
-            } else {
-                // add keyboard
-                console.log('adding keyboard', i - originalGamepadCount);
-                this.players.push(this.createPlayer(300 + 200 * i, 300, alienNames[i], keyboardInputs[i - originalGamepadCount]));
-            }
-        }
-
+    createPlayers(gameConfig: GameSceneConfig) {
+        this.players = [];
+        // create players of config
+        gameConfig.players.forEach((playerConfig, index) => {
+            let player = this.createPlayer(300 + 200 * index, 300, playerConfig.texture, playerConfig.input);
+            this.players.push(player);
+        });
     }
     create() {
         // needed because otherwise gamepads are not detected
@@ -180,7 +149,6 @@ export class GameScene extends Phaser.Scene {
         this.catcherEmitter.setScale(0.5, 0.5);
         this.catcherEmitter.setSpeed(50);
         this.catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
-
 
 
 
@@ -233,7 +201,7 @@ export class GameScene extends Phaser.Scene {
         });*/
 
 
-        this.createPlayers();
+        this.createPlayers(this.gameConfig);
 
         console.log('props: ', map.properties);
         if (_.find(<any>map.properties, (prop: any) => {return prop.name === 'noBorders' && prop.value === true})) {
