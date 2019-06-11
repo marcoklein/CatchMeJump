@@ -27,7 +27,6 @@ import { InputDeviceScene } from './scene/InputDeviceScene';
 };*/
 
 var config: Phaser.Types.Core.GameConfig = {
-    parent: '#game',
     type: Phaser.AUTO,
     backgroundColor: '#222',
     fps: {
@@ -37,10 +36,11 @@ var config: Phaser.Types.Core.GameConfig = {
         createContainer: true
     },
     scale: {
-        mode: Phaser.Scale.RESIZE,
+        parent: '#game',
+        mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 800,
-        height: 600,
+        width: 960,
+        height: 640,
         min: {
             width: 400,
             height: 300

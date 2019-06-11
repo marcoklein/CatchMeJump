@@ -239,6 +239,7 @@ export class InputDeviceScene extends Phaser.Scene {
         // do not start game without players
         if (gameConfig.players.length < 1) {
             console.warn('Cannot start game without players.');
+            this.startingGame = false;
             return;
         }
 
