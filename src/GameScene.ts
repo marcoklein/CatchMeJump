@@ -569,10 +569,6 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    preUpdate() {
-        console.log('pre update');
-    }
-
     update(time: number, delta: number) {
         //this.physics.world.gravity = new Phaser.Math.Vector2(0, 400);
         if (this.remainingGameTime > 0) {
