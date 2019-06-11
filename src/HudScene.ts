@@ -16,6 +16,8 @@ export class HudScene extends Phaser.Scene {
 
     gameFinishedText: Phaser.GameObjects.Text;
 
+    leavingScene: boolean;
+
     // true if game is finished
     finished: boolean = false;
 
@@ -91,23 +93,25 @@ export class HudScene extends Phaser.Scene {
             if (!this.finished) {
                 this.finished = true;
                 
-                this.input.keyboard.once('keyup_ENTER', () => {
-                    console.log('new game')
-                    // restart game
-                    this.scene.remove('GameScene');
-                    this.scene.remove('HudScene');
-
-                    this.scene.start('MainScene');
-                    //this.scene.add('GameScene', GameScene, true);
-                    //this.scene.add('HudScene', HudScene, true);
-                    //this.scene.add('MainScene', MainScene, true);
-                    //this.gameScene.scene.restart();
-                    //this.gameScene.scene.restart(this.game.config);
-                    //this.scene.launch();//(new GameScene());
-                    //this.gameScene.scene.restart();
-                    //this.scene.restart();
-                });
+                this.input.keyboard.once('keyup_ENTER', this.goToMainScene, this);
             }
+            // listen for gamepad start button press to go to main scene
+            this.input.gamepad.gamepads.forEach((pad) => {
+                if (pad.buttons[9].pressed) {
+                    this.goToMainScene();
+                }
+            });
         }
+    }
+
+    private goToMainScene() {
+        if (this.leavingScene) return;
+        this.leavingScene = true;
+
+        // restart game
+        this.scene.remove('GameScene');
+        this.scene.remove('HudScene');
+
+        this.scene.start('InputDeviceScene');
     }
 }

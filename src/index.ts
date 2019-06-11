@@ -34,7 +34,7 @@ var config: Phaser.Types.Core.GameConfig = {
         default: 'arcade',
         arcade: {
             gravity: { y: 900 },
-            debug: true,
+            //debug: true,
             tileBias: 70 // prevent falling through tiles... (tile size of tilemap)
             //overlapBias: 16
         }
@@ -43,7 +43,7 @@ var config: Phaser.Types.Core.GameConfig = {
         createContainer: true
     },
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.ENVELOP,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 800,
         height: 600,
