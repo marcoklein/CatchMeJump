@@ -251,7 +251,7 @@ export class MainScene extends Phaser.Scene {
 
         this.stopMusic();
         // start game
-        this.scene.stop('InputDeviceScene');
+        this.scene.stop('MainScene');
         this.scene.add('GameScene', GameScene, true);
         this.scene.add('HudScene', HudScene, true);
     }
