@@ -342,7 +342,7 @@ export class GameScene extends Phaser.Scene {
         player.isFrozen = true;
         // attach catcher effect to playerB
         this.catcherEmitter.startFollow(player.sprite);
-        this.time.delayedCall(3000, () => { player.isFrozen = false; }, [], this);
+        this.time.delayedCall(2500, () => { player.isFrozen = false; }, [], this);
     }
 
     /**

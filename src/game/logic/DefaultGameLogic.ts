@@ -32,6 +32,11 @@ export class DefaultGameLogic implements GameLogic {
         if (collisionA.direction === CollisionDirection.BOTTOM) {
             // player A jumped on player B
             collisionA.player.jump(500);
+            if (collisionB.player.isCatcher) {
+                collisionA.player.score += 5000;
+            } else {
+                collisionA.player.score += 2000;
+            }
             // allow catching by jumping on player
             if (collisionA.player.isCatcher) {
                 this.handleCatcherCollision(collisionA.player, collisionB.player);
@@ -39,6 +44,11 @@ export class DefaultGameLogic implements GameLogic {
         } else if (collisionB.direction === CollisionDirection.BOTTOM) {
             // player B jumped on player A
             collisionB.player.jump(500);
+            if (collisionA.player.isCatcher) {
+                collisionB.player.score += 5000;
+            } else {
+                collisionB.player.score += 2000;
+            }
             // allow catching by jumping on player
             if (collisionB.player.isCatcher) {
                 this.handleCatcherCollision(collisionA.player, collisionB.player);
