@@ -181,7 +181,7 @@ export class GameScene extends Phaser.Scene {
 
         // init best player icon
         this.bestPlayerIcon = this.add.image(0, 0, 'gameicons', 'trophy');
-        this.bestPlayerIcon.setScale(1.2);
+        this.bestPlayerIcon.setScale(1.3);
         this.bestPlayerIcon.setTintFill(0xffff00);
         this.bestPlayerIcon.setDepth(100);
         this.bestPlayerIcon.setVisible(false);
