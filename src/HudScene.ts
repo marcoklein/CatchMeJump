@@ -1,7 +1,6 @@
 
 import * as Phaser from 'phaser';
 import { GameScene } from './GameScene';
-import { MainScene } from './MainScene';
 
 export class HudScene extends Phaser.Scene {
 
@@ -118,10 +117,10 @@ export class HudScene extends Phaser.Scene {
         if (this.leavingScene) return;
         this.leavingScene = true;
 
-        // restart game
+        // destroy game scenes
         this.scene.remove('GameScene');
         this.scene.remove('HudScene');
-
-        this.scene.start('InputDeviceScene');
+        // go to main scene
+        this.scene.start('MainScene');
     }
 }

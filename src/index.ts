@@ -26,7 +26,8 @@ import { PreloadScene } from './scene/PreloadScene';
     }
 };*/
 
-var config: Phaser.Types.Core.GameConfig = {
+var config: any = {
+    showPreloadScreen: true,
     type: Phaser.AUTO,
     backgroundColor: '#222',
     fps: {
@@ -52,13 +53,13 @@ var config: Phaser.Types.Core.GameConfig = {
     },
     input: {
         gamepad: true
-    },
-    scene: [
-        PreloadScene, MainScene
-    ]
+    }
 };
 
 
 // phaser game object
 var game = new Phaser.Game(config);
+// add scenes manually due to Phaser 3.17 TS configuration bug
+// see https://github.com/photonstorm/phaser/issues/4522
 game.scene.add('PreloadScene', PreloadScene, true);
+game.scene.add('MainScene', MainScene);

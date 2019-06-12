@@ -69,26 +69,7 @@ export class GameScene extends Phaser.Scene {
     preload() {
         // load game config
         this.gameConfig = this.registry.get('gameConfig');
-        console.log(this.gameConfig);
         
-        // load players
-        this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
-
-        // load items
-        this.load.image('jetpack_item', 'assets/sprites/jetpack_item.png');
-
-        // load particles
-        this.load.image('particle_blue', 'assets/particles/blue.png');
-        this.load.image('particle_red', 'assets/particles/red.png');
-
-        // load tilemap
-        this.load.image('base_tiles', 'assets/tiles/base_spritesheet.png');
-        this.load.image('building_tiles', 'assets/tiles/buildings.png');
-        this.load.image('candy_tiles', 'assets/tiles/candy.png');
-        this.load.image('ice_tiles', 'assets/tiles/ice.png');
-        this.load.image('mushroom_tiles', 'assets/tiles/mushroom.png');
-        this.load.image('request_tiles', 'assets/tiles/request.png');
-        this.load.image('industrial_tiles', 'assets/tiles/industrial.png');
 
         let maps = [
             //'/assets/tilemaps/marcs_world.json',
