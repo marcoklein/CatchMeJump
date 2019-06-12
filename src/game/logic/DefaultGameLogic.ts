@@ -41,11 +41,21 @@ export class DefaultGameLogic implements GameLogic {
         }
     }
 
+    /**
+     * Define what happens when a player jumps on another player.
+     * 
+     * @param topPlayer 
+     * @param bottomPlayer 
+     */
     private handlePlayerJumpOnHead(topPlayer: Player, bottomPlayer: Player) {
         topPlayer.jump(500);
         if (bottomPlayer.isCatcher) {
+            // catcher also catches if jumped on top...
+            topPlayer.isCatcher = true;
+            bottomPlayer.isCatcher = false;
             //collisionB.player.score += 1000;
-        } else {
+        } else if (!topPlayer.isFrozen) { // do not freeze catcher
+            // freeze bottom player
             bottomPlayer.freeze(500);
             //collisionB.player.score += 500;
         }
