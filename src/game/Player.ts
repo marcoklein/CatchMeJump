@@ -19,6 +19,10 @@ export class Player {
 
     // player attributes
     speed: number = 1;
+    /**
+     * Multiplier of the jump velocity. Same as speed for horizontal movement.
+     */
+    jumpMultiplier: number = 1;
     score: number = 0;
 
     // actions
@@ -148,28 +152,7 @@ export class Player {
         if (!this.isFrozen) {
             // speed boost activated?
             if (!this.action1Cooldown && this.inputController.actions.action1) {
-                // activate speed boost
-                this.speed = 1.5;
-                this.action1Cooldown = true;
-                // play particle animation
-                var particles = scene.add.particles('particle_blue');
-                let speedBoostEmitter = particles.createEmitter({});
-                speedBoostEmitter.setPosition(0, 35);
-                speedBoostEmitter.setScale(0.5);
-                speedBoostEmitter.setSpeed(50);
-                speedBoostEmitter.setBlendMode(Phaser.BlendModes.SCREEN);
-                speedBoostEmitter.startFollow(this.sprite);
-                sceneTime.delayedCall(1500, () => { this.speed = 1; particles.destroy(); }, [], this);
-                sceneTime.delayedCall(5000, () => {
-                    this.action1Cooldown = false; this.speed = 1;
-                    let speedBoostNotificationParticles = scene.add.particles('particle_blue');
-                    let speedBoostNotification = speedBoostNotificationParticles.createEmitter({});
-                    speedBoostNotification.setScale(0.5);
-                    speedBoostNotification.setSpeed(300);
-                    speedBoostNotification.setBlendMode(Phaser.BlendModes.ADD);
-                    speedBoostNotification.startFollow(this.sprite);
-                    sceneTime.delayedCall(150, () => {speedBoostNotificationParticles.destroy();}, [], this);
-                }, [], this);
+                this.activateAction1();
             }
 
 
@@ -216,11 +199,11 @@ export class Player {
                 if (!this.jumpPerformed) {
                     this.jumpPerformed = true;
                     if (this.lastTimeOnGround < 5 || this.physicsBody.onFloor() || this.sprite.body.touching.down) {
-                        this.jump(550 * this.speed);
+                        this.jump(550);
                     } else if (this.jumpsInAir < this.maxJumpsInAir) {
                         // perform air jump
                         this.jumpsInAir++;
-                        this.jump(400 * this.speed);
+                        this.jump(400);
                     }
                 }
             } else {
@@ -241,8 +224,67 @@ export class Player {
             // jumping from an object is like being on the ground
             this.jumpsInAir = 0;
             this.lastTimeOnGround = 0;
-            this.jump(800 * this.speed);
+            this.jump(800);
         }
+    }
+
+    private activateAction1() {
+        let sceneTime = this.scene.time;
+
+        // the action function returns if the skill has been used
+        this.action1Cooldown = this.activateSpeedBoost();
+
+        if (this.action1Cooldown) {
+            // cooldown of 5 seconds
+            sceneTime.delayedCall(5000, () => {
+                this.action1Cooldown = false;
+            }, [], this);
+        }
+    }
+
+    /**
+     * Throw a player into his moving direction.
+     */
+    private activateSuperJump(): boolean {
+        this.jump(800);
+        return true;
+    }
+
+    private activateSpeedBoost(): boolean {
+        let scene = this.scene;
+        let sceneTime = this.scene.time;
+        
+        // activate speed boost
+        this.speed = 1.7;
+        this.jumpMultiplier = 1.5;
+        
+        // play particle animation
+        var particles = scene.add.particles('particle_blue');
+        let speedBoostEmitter = particles.createEmitter({});
+        speedBoostEmitter.setPosition(0, 35);
+        speedBoostEmitter.setScale(0.5);
+        speedBoostEmitter.setSpeed(50);
+        speedBoostEmitter.setBlendMode(Phaser.BlendModes.SCREEN);
+        speedBoostEmitter.startFollow(this.sprite);
+        sceneTime.delayedCall(1500, () => {
+            // reset multipliers
+            this.speed = 1;
+            this.jumpMultiplier = 1;
+            particles.destroy();
+        }, [], this);
+        sceneTime.delayedCall(5000, () => {
+            this.action1Cooldown = false;
+            // notify user that speed boost is available again
+            let speedBoostNotificationParticles = scene.add.particles('particle_blue');
+            let speedBoostNotification = speedBoostNotificationParticles.createEmitter({});
+            speedBoostNotification.setScale(0.5);
+            speedBoostNotification.setSpeed(300);
+            speedBoostNotification.setBlendMode(Phaser.BlendModes.ADD);
+            speedBoostNotification.startFollow(this.sprite);
+            sceneTime.delayedCall(150, () => {speedBoostNotificationParticles.destroy();}, [], this);
+        }, [], this);
+
+        return true;
     }
 
     /* Player Actions */
@@ -254,7 +296,7 @@ export class Player {
      * The default strength is 550.
      */
     jump(strength: number = 550) {
-        this.sprite.setVelocityY(-strength);
+        this.sprite.setVelocityY(-strength * this.jumpMultiplier);
         this.sprite.anims.play(this.animationKeys.jump);
         let particleNum = strength / 250;
         particleNum *= particleNum;
