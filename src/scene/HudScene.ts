@@ -61,7 +61,7 @@ export class HudScene extends Phaser.Scene {
         });
     }
 
-    scalefactor = 0.5;
+    scalefactor = 1;
     update() {
         // update fps info
         if (this.showFps) this.fpsText.setText('' + this.game.loop.actualFps);
