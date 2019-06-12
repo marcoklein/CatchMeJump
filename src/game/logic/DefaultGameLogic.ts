@@ -25,9 +25,9 @@ export class DefaultGameLogic implements GameLogic {
     onPlayerCollision(collisionA: PlayerCollision, collisionB: PlayerCollision): void {
         // if a player jumps on another he gets an extra push
         if (collisionA.direction === CollisionDirection.BOTTOM) {
-            collisionA.player.physicsBody.setVelocityY(-500);
+            collisionA.player.jump(500);
         } else if (collisionB.direction === CollisionDirection.BOTTOM) {
-            collisionB.player.physicsBody.setVelocityY(-500);
+            collisionB.player.jump(500);
         } else {
             // players might catch each other
             this.handlePlayerCollision(collisionA.player, collisionB.player);

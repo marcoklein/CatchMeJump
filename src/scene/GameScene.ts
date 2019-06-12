@@ -197,10 +197,6 @@ export class GameScene extends Phaser.Scene {
         // choose a random catcher
         this.setCatcher(this.players[_.random(this.players.length - 1)]);
 
-        // load player animations
-        this.players.forEach(player => {
-            player.createAnimations(this.anims);
-        });
 
 
         // enable collision between platforms and player

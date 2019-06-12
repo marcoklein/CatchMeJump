@@ -34,6 +34,15 @@ export class Player {
 
     jetpackTime: number;
 
+
+    effects: Effect[];
+
+    /* Visualization */
+    /**
+     * Emits particles with each player jump.
+     */
+    private jumpEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
     animationKeys: {
         walk: string,
         idle: string,
@@ -41,7 +50,6 @@ export class Player {
         hurt: string
     };
 
-    effects: Effect[];
     
     constructor(scene: Phaser.Scene, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string, inputOptions: InputDeviceOptions) {
         this.scene = scene;
@@ -55,7 +63,21 @@ export class Player {
             hurt: this.animationPrefix + '_hurt'
         };
 
-        this.initInputController(inputOptions)
+        this.initEffects();
+        this.initInputController(inputOptions);
+        this.createAnimations(scene.anims);
+    }
+
+    private initEffects() {
+        let blueParticles = this.scene.add.particles('particle_red');
+        blueParticles.setDepth(-100);
+
+        this.jumpEmitter = blueParticles.createEmitter({});
+        this.jumpEmitter.setScale(0.5);
+        this.jumpEmitter.setSpeed(50);
+        this.jumpEmitter.setFrequency(-1, 0);
+        this.jumpEmitter.setBlendMode(Phaser.BlendModes.ADD);
+        this.jumpEmitter.startFollow(this.sprite);
     }
     
     /**
@@ -78,9 +100,12 @@ export class Player {
         }
     }
 
-    createAnimations(anims: any) {
-        console.log(this.animationKeys);
-        console.log(this.animationPrefix);
+    /**
+     * Creates all animations of the player.
+     * 
+     * @param anims Animation manager of the scene.
+     */
+    private createAnimations(anims: any) {
         anims.create({
             key: this.animationKeys.walk,
             frames: anims.generateFrameNames('players', { prefix: (this.animationPrefix + '_walk'), start: 1, end: 2 }),
@@ -104,6 +129,14 @@ export class Player {
         });
     }
 
+    /**
+     * Update player logic.
+     * Called by the GameScene every update step.
+     * 
+     * @param totalTime 
+     * @param delta 
+     * @param scene 
+     */
     update(totalTime: number, delta: number, scene: GameScene) {
         let input = scene.input;
         let sceneTime = scene.time;
@@ -181,13 +214,11 @@ export class Player {
                 if (!this.jumpPerformed) {
                     this.jumpPerformed = true;
                     if (this.lastTimeOnGround < 5 || this.physicsBody.onFloor() || this.sprite.body.touching.down) {
-                        this.sprite.setVelocityY(-550 * this.speed);
-                        this.sprite.anims.play(this.animationKeys.jump);
+                        this.jump(550 * this.speed);
                     } else if (this.jumpsInAir < this.maxJumpsInAir) {
                         // perform air jump
                         this.jumpsInAir++;
-                        this.sprite.setVelocityY(-400 * this.speed);
-                        this.sprite.anims.play(this.animationKeys.jump);
+                        this.jump(400 * this.speed);
                     }
                 }
             } else {
@@ -208,8 +239,22 @@ export class Player {
             // jumping from an object is like being on the ground
             this.jumpsInAir = 0;
             this.lastTimeOnGround = 0;
-            this.sprite.setVelocityY(-800 * this.speed);
+            this.jump(800 * this.speed);
         }
+    }
+
+    /* Player Actions */
+
+    /**
+     * Performs a player jump.
+     * Emits jump particles and plays the jump animation.
+     * 
+     * The default strength is 550.
+     */
+    jump(strength: number = 550) {
+        this.sprite.setVelocityY(-strength);
+        this.sprite.anims.play(this.animationKeys.jump);
+        this.jumpEmitter.emitParticle(strength / 100);
     }
 
     activateJetpack(time, scene) {
