@@ -1,5 +1,5 @@
 import { Player } from "../Player";
-import { GameScene } from "../../GameScene";
+import { GameScene } from "../../scene/GameScene";
 
 export enum CollisionDirection {
     TOP = 'Top',

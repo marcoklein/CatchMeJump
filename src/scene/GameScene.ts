@@ -2,11 +2,11 @@
 import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
-import { Player } from './game/Player';
-import { KeyboardController, GamepadController, InputController } from './InputController';
-import { GameLogic, CollisionDirection } from './game/logic/GameLogic';
-import { DefaultGameLogic } from './game/logic/DefaultGameLogic';
-import { GameSceneConfig, InputDeviceOptions } from './game/GameConfig';
+import { Player } from '../game/Player';
+import { KeyboardController, GamepadController, InputController } from '../InputController';
+import { GameLogic, CollisionDirection } from '../game/logic/GameLogic';
+import { DefaultGameLogic } from '../game/logic/DefaultGameLogic';
+import { GameSceneConfig, InputDeviceOptions } from '../game/GameConfig';
 
 
 export class GameScene extends Phaser.Scene {

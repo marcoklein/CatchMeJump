@@ -1,5 +1,5 @@
 import { InputController, GamepadController, KeyboardController } from "../InputController";
-import { GameScene } from "../GameScene";
+import { GameScene } from "../scene/GameScene";
 import { Effect } from "./Effect";
 import { InputDeviceOptions, InputDeviceType } from "./GameConfig";
 

@@ -1,6 +1,6 @@
 import { GameLogic, PlayerCollision } from "./GameLogic";
 import { Player } from "../Player";
-import { GameScene } from "../../GameScene";
+import { GameScene } from "../../scene/GameScene";
 
 
 export class DefaultGameLogic implements GameLogic {
