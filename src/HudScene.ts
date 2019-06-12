@@ -1,6 +1,6 @@
 
 import * as Phaser from 'phaser';
-import { GameScene } from './GameScene';
+import { GameScene } from './scene/GameScene';
 
 export class HudScene extends Phaser.Scene {
 

@@ -4,7 +4,7 @@ import { InputDevicePanel } from '../ui/InputDevicePanel';
 import { ImageButton } from '../ui/ImageButton';
 import { InputDeviceType, InputDeviceOptions, GameSceneConfig, GamePlayerConfig } from '../game/GameConfig';
 import { InputDeviceGrid } from '../ui/InputDeviceGrid';
-import { GameScene } from '../GameScene';
+import { GameScene } from './GameScene';
 import { HudScene } from '../HudScene';
 
 const PLAYER_TEXTURES = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];
