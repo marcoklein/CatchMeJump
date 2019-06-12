@@ -237,11 +237,6 @@ export class Player {
             this.sprite.anims.play(this.animationKeys.hurt);
         }
 
-        // calculate score
-        if (!this.isCatcher) {
-            this.score += delta;
-        }
-
         // check for world map interaction
         if (scene.objectGroup && scene.physics.world.overlap(this.sprite, scene.objectGroup)) {
             // jumping from an object is like being on the ground

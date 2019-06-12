@@ -15,18 +15,23 @@ export class DefaultGameLogic implements GameLogic {
         console.log('on game start');
         
         // choose a random catcher
-        this.game.setCatcher(players[_.random(players.length - 1)]);
+        let catcher = players[_.random(players.length - 1)];
+        this.game.setCatcher(catcher);
+        catcher.score = 15000;
 
     }
-    onGameStop(): void {
-        console.log('on game stop');
+
+    update(time: number, delta: number) {
+
+        this.game.players.forEach((player) => {
+            // update player score
+            if (!player.isCatcher) {
+                player.score += delta;
+            }
+        });
+
     }
-    onPlayerJoin(player: Player): void {
-        console.log('on player join');
-    }
-    onPlayerLeave(player: Player): void {
-        console.log('on player leave');
-    }
+
     onPlayerCollision(collisionA: PlayerCollision, collisionB: PlayerCollision): void {
         // if a player jumps on another he gets an extra push
         if (collisionA.direction === CollisionDirection.BOTTOM) {
@@ -76,6 +81,16 @@ export class DefaultGameLogic implements GameLogic {
         } else if (playerB.isCatcher) {
             this.game.setCatcher(playerA);
         }
+    }
+
+    onGameStop(): void {
+        console.log('on game stop');
+    }
+    onPlayerJoin(player: Player): void {
+        console.log('on player join');
+    }
+    onPlayerLeave(player: Player): void {
+        console.log('on player leave');
     }
 
 }

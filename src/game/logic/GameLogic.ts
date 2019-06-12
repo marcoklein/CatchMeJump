@@ -28,6 +28,8 @@ export interface GameLogic {
      */
     onGameStop(): void;
 
+    update(time: number, delta: number): void;
+
     /**
      * A player joins the game.
      * Only called if a player joins or leaves during an ongoing game.

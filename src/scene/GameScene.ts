@@ -631,6 +631,8 @@ export class GameScene extends Phaser.Scene {
             this.playerPhysicsUpdate(time, delta, this);
             this.updateCameraPosition(this.cameras.main);
             this.updateItemSpawner(time, delta);
+            // update game state
+            this.gameLogic.update(time, delta);
         } else {
             // game finished - do nothing
             this.stopMusic();
