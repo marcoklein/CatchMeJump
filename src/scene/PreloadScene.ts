@@ -23,7 +23,7 @@ export class PreloadScene extends Phaser.Scene {
         // load html
         this.load.html('controller_frame', 'assets/html/controller_frame.html');
         // load ui
-        this.load.image('keyboard_icon', 'assets/sprites/keyboard.png');
+        this.load.image('keyboard_icon', 'assets/sprites/keyboard.svg');
         this.load.atlas('ui_pack', 'assets/sprites/uipack.png', 'assets/sprites/uipack.json');
         this.load.atlas('ui_icons', 'assets/sprites/ui_icons.png', 'assets/sprites/ui_icons.json');
         this.load.atlas('gameicons', 'assets/sprites/gameicons.png', 'assets/sprites/gameicons.json');

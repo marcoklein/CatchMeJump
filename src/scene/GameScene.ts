@@ -21,7 +21,7 @@ export class GameScene extends Phaser.Scene {
     /**
      * Game time.
      */
-    remainingGameTime = 3 * 60 * 1000;
+    remainingGameTime = 4 * 60 * 1000;
 
     // effect that marks catcher
     private catcherEmitter = null;
