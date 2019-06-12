@@ -1,6 +1,7 @@
 import { GameLogic, PlayerCollision, CollisionDirection } from "./GameLogic";
 import { Player } from "../Player";
 import { GameScene } from "../../scene/GameScene";
+import _ = require("underscore");
 
 
 export class DefaultGameLogic implements GameLogic {
@@ -12,6 +13,10 @@ export class DefaultGameLogic implements GameLogic {
 
     onGameStart(players: Player[]): void {
         console.log('on game start');
+        
+        // choose a random catcher
+        this.game.setCatcher(players[_.random(players.length - 1)]);
+
     }
     onGameStop(): void {
         console.log('on game stop');

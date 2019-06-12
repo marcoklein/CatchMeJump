@@ -18,30 +18,40 @@ export class GameScene extends Phaser.Scene {
 
     // list of all players
     players: Player[] = [];
-    // effect that marks catcher
-    catcherEmitter = null;
-
+    /**
+     * Game time.
+     */
     remainingGameTime = 5 * 60 * 1000;
 
-    // index of loaded map
-    mapIndex: number = -1;
+    // effect that marks catcher
+    private catcherEmitter = null;
 
-    worldLayer: Phaser.Tilemaps.StaticTilemapLayer;
+    /* Map related */
+
+    /**
+     * Loaded tilemap.
+     */
+    private map: Phaser.Tilemaps.Tilemap;
+    /**
+     * World layer of the tilemap.
+     */
+    private worldLayer: Phaser.Tilemaps.StaticTilemapLayer;
+    private objectLayer: Phaser.Tilemaps.DynamicTilemapLayer;
     /**
      * All colliding tiles.
      */
-    collisionTiles: Phaser.Tilemaps.Tile[];
+    private collisionTiles: Phaser.Tilemaps.Tile[];
 
     objectGroup: any;//Phaser.Physics.Arcade.StaticGroup = null;
-    itemGroup: any;
-    itemSpawnLocations: [
+    private itemGroup: any;
+    private itemSpawnLocations: [
         {
             x: number,
             y: number
         }
     ];
     // time till next item is spawned
-    nextItemSpawn: number = 15000;
+    private nextItemSpawn: number = 15000;
 
     gameMusic: Phaser.Sound.BaseSound;
 
@@ -71,10 +81,28 @@ export class GameScene extends Phaser.Scene {
         // load game config
         this.gameConfig = this.registry.get('gameConfig');
         
-
-        // load needed map
+        // load configured map
         this.cache.tilemap.remove('tilemap');
         this.load.tilemapTiledJSON('tilemap', this.gameConfig.tilemapPath);
+    }
+
+    
+    create() {
+        this.startMusic();
+        this.createEffects();
+        this.createMap();
+        this.createPlayers(this.gameConfig);
+        this.initPhysics();
+        
+
+        // ensure game size is set properly
+        this.scale.on('resize', (gameSize: {width: number; height: number}) => {
+            this.cameras.resize(gameSize.width, gameSize.height);
+        });
+
+    
+        // notify game logic about start
+        this.gameLogic.onGameStart(this.players);
     }
 
     /**
@@ -84,7 +112,7 @@ export class GameScene extends Phaser.Scene {
      * @param imageName 
      * @param controller 
      */
-    createPlayer(x: number, y: number, imageName: string, inputOptions: InputDeviceOptions) {
+    private createPlayer(x: number, y: number, imageName: string, inputOptions: InputDeviceOptions) {
         let sprite = this.physics.add.sprite(x, y, 'players', imageName + '_stand');
         sprite.setCollideWorldBounds(true);
         sprite.setSize(56, 88);
@@ -99,7 +127,7 @@ export class GameScene extends Phaser.Scene {
     /**
      * Create all player and add them to this.players
      */
-    createPlayers(gameConfig: GameSceneConfig) {
+    private createPlayers(gameConfig: GameSceneConfig) {
         this.players = [];
         // create players of config
         gameConfig.players.forEach((playerConfig, index) => {
@@ -120,8 +148,7 @@ export class GameScene extends Phaser.Scene {
         this.gameMusic.destroy();
     }
 
-    create() {
-        this.startMusic();
+    private createEffects() {
         //  First create a particle manager
         //  A single manager can be responsible for multiple emitters
         //  The manager also controls which particle texture is used by _all_ emitter
@@ -131,12 +158,14 @@ export class GameScene extends Phaser.Scene {
         this.catcherEmitter.setScale(0.5, 0.5);
         this.catcherEmitter.setSpeed(50);
         this.catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
+    }
 
-
-
+    private createMap() {
+        
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
-        const map = this.make.tilemap({key: 'tilemap'});
+        this.map = this.make.tilemap({key: 'tilemap'});
+        let map = this.map;
         const baseTiles = map.addTilesetImage('base_platformer', 'base_tiles');
         const buildingTiles = map.addTilesetImage('building', 'building_tiles');
         const candyTiles = map.addTilesetImage('candy', 'candy_tiles');
@@ -159,9 +188,9 @@ export class GameScene extends Phaser.Scene {
         const belowLayer = map.createStaticLayer('Below Player', tilesets, 0, 0);
         this.worldLayer = map.createStaticLayer('World', tilesets, 0, 0);
         const aboveLayer = map.createStaticLayer('Above Player', tilesets, 0, 0);
-        const objectLayer = map.createDynamicLayer('Objects', tilesets, 0, 0);
+        this.objectLayer = map.createDynamicLayer('Objects', tilesets, 0, 0);
 
-        if (objectLayer) {
+        if (this.objectLayer) {
             console.log('Object layer loaded');
         }
 
@@ -172,8 +201,7 @@ export class GameScene extends Phaser.Scene {
                 return tile;
             }
         });
-        console.log('collidable tiles', this.collisionTiles.length);
-
+        
         // debug graphics for tilemap collisions
         /*const debugGraphics = this.add.graphics().setAlpha(0.75);
         worldLayer.renderDebug(debugGraphics, {
@@ -182,63 +210,25 @@ export class GameScene extends Phaser.Scene {
             faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         });*/
 
-
-        this.createPlayers(this.gameConfig);
-
-        console.log('props: ', map.properties);
+        //console.log('props: ', map.properties);
         if (_.find(<any>map.properties, (prop: any) => {return prop.name === 'noBorders' && prop.value === true})) {
-            console.log('playing map without borders');
+            //console.log('playing map without borders');
             this.players.forEach(player => {
                 // players are placed on top if they fall down
                 player.sprite.setCollideWorldBounds(false);
             })
         }
 
-        // choose a random catcher
-        this.setCatcher(this.players[_.random(this.players.length - 1)]);
-
-
-
-        // enable collision between platforms and player
-        this.players.forEach(player => {
-            this.physics.add.collider(player.sprite, this.worldLayer);
-        });
-        //this.physics.add.collider(_.pluck(this.players, 'sprite'), _.pluck(this.players, 'sprite'));
-        // listen to player to player events
-        for (let i = 0; i < this.players.length; i++) {
-            for (let j = i; j < this.players.length; j++) {
-                if (i != j) {
-                    this.physics.add.collider(this.players[i].sprite, this.players[j].sprite, this.playersCollided, null, this);
-                    //this.physics.add.overlap(this.players[i].sprite, this.players[j].sprite, this.playersOverlap, null, this);
-                }
-            }
-        }
-
-        //this.physics.add.collider(_.pluck(this.players, 'sprite'), _.pluck(this.players, 'sprite'), this.playersCollided, null, this);
-        //this.physics.add.overlap(_.pluck(this.players, 'sprite'), _.pluck(this.players, 'sprite'), this.playersOverlap, null, this);
-
-
-
-        // set bounds
-        this.physics.world.setBounds(0, 0, map.width * map.tileWidth, map.height * map.tileHeight);
-        //this.cameras.main.setBounds(-200, -200, 1600, 1600);
-
-
-        // ensure game size is set properly
-        this.scale.on('resize', (gameSize: {width: number; height: number}) => {
-            this.cameras.resize(gameSize.width, gameSize.height);
-        });
-
-
+        
         // enable special map objects if layer is available
-        if (objectLayer) {
+        if (this.objectLayer) {
             // Create a physics group - useful for colliding the player against all the spikes
             this.objectGroup = this.physics.add.staticGroup();
             this.itemGroup = this.physics.add.staticGroup();
 
 
             // Loop over each Tile and replace spikes (tile index 77) with custom sprites
-            objectLayer.forEachTile(tile => {
+            this.objectLayer.forEachTile(tile => {
                 if (tile.index === 360) {
                     // A sprite has its origin at the center, so place the sprite at the center of the tile
                     const x = tile.getCenterX();
@@ -253,7 +243,7 @@ export class GameScene extends Phaser.Scene {
                 } else if (tile.index === 1 || (<any>tile.properties).spawn_item) {
                     // extract spawn points for items
                     console.log('found spawn point', tile.properties);
-                    objectLayer.removeTileAt(tile.x, tile.y);
+                    this.objectLayer.removeTileAt(tile.x, tile.y);
                     // add item spawner location
                     if (!this.itemSpawnLocations) {
                         this.itemSpawnLocations = [{x: tile.x * tile.width, y: tile.y * tile.height}];
@@ -263,12 +253,38 @@ export class GameScene extends Phaser.Scene {
                 }
             });
         }
-    
-        // notify game logic about start
-        this.gameLogic.onGameStart(this.players);
+
     }
 
-    spawnItem(x, y) {
+    private initPhysics() {
+        // enable collision between platforms and player
+        this.players.forEach(player => {
+            this.physics.add.collider(player.sprite, this.worldLayer);
+        });
+        // listen to player to player events
+        for (let i = 0; i < this.players.length; i++) {
+            for (let j = i; j < this.players.length; j++) {
+                if (i != j) {
+                    this.physics.add.collider(this.players[i].sprite, this.players[j].sprite, this.playersCollided, null, this);
+                    //this.physics.add.overlap(this.players[i].sprite, this.players[j].sprite, this.playersOverlap, null, this);
+                }
+            }
+        }
+
+        // set bounds
+        this.physics.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHeight);
+        //this.cameras.main.setBounds(-200, -200, 1600, 1600);
+
+    }
+
+
+    /**
+     * Spawns a jetpack item at the given location.
+     * 
+     * @param x 
+     * @param y 
+     */
+    spawnItem(x: number, y: number) {
         let itemSprite = this.physics.add.sprite(x, y, 'jetpack_item');
         
         this.physics.add.collider(itemSprite, this.worldLayer);
@@ -297,8 +313,13 @@ export class GameScene extends Phaser.Scene {
         this.time.delayedCall(3000, () => { player.isFrozen = false; }, [], this);
     }
 
-
-    playersCollided(spritePlayerA: Phaser.Physics.Arcade.Sprite, spritePlayerB: Phaser.Physics.Arcade.Sprite) {
+    /**
+     * Callback function of the physics engine.
+     * 
+     * @param spritePlayerA 
+     * @param spritePlayerB 
+     */
+    private playersCollided(spritePlayerA: Phaser.Physics.Arcade.Sprite, spritePlayerB: Phaser.Physics.Arcade.Sprite) {
         // find catcher player object
         let playerA = _.find(this.players, player => {return player.sprite === spritePlayerA});
         let playerB = _.find(this.players, player => {return player.sprite === spritePlayerB});
@@ -413,7 +434,7 @@ export class GameScene extends Phaser.Scene {
     /**
      * Updates camera position too always see all players.
      */
-    updateCameraPosition(cam: Phaser.Cameras.Scene2D.Camera) {
+    private updateCameraPosition(cam: Phaser.Cameras.Scene2D.Camera) {
         
         const CAM_OFFSET = 600;
         const MIN_OFFSET = 400;
@@ -466,7 +487,14 @@ export class GameScene extends Phaser.Scene {
 
     }
 
-    playerPhysicsUpdate(time, delta, scene: GameScene) {
+    /**
+     * Custom player update to handle falling off world and do custom physics handling.
+     * 
+     * @param time 
+     * @param delta 
+     * @param scene 
+     */
+    private playerPhysicsUpdate(time: number, delta: number, scene: GameScene) {
         this.players.forEach(player => {
             if (player.sprite.y > this.physics.world.bounds.height) {
                 player.sprite.x = 200;
@@ -474,7 +502,7 @@ export class GameScene extends Phaser.Scene {
                 this.setCatcher(player);
             }
         });
-        // manual player collision check, as overlap is not called every time
+        // manual player collision check as overlap is not called every time
         for (let i = 0; i < this.players.length; i++) {
             let playerA = this.players[i];
             for (let j = i; j < this.players.length; j++) {
@@ -525,7 +553,7 @@ export class GameScene extends Phaser.Scene {
         this.notifiyGameLogicPlayerCollision(playerA, playerB);
     }
 
-    updateItemSpawner(time, delta) {
+    private updateItemSpawner(time, delta) {
         this.nextItemSpawn -= delta;
         if (this.itemSpawnLocations && this.itemSpawnLocations.length > 0 && this.nextItemSpawn < 0) {
             this.nextItemSpawn = 15000;
