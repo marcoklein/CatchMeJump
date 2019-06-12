@@ -8,14 +8,16 @@ export class Player {
     readonly scene: Phaser.Scene;
 
     isCatcher: boolean;
-    isFrozen: boolean; // true if player cant move
     inputController: InputController;
     sprite: Phaser.Physics.Arcade.Sprite = null; // sprite player controls
     physicsBody: Phaser.Physics.Arcade.Body;
+
+    private freezeTimer: Phaser.Time.TimerEvent;
     /**
-     * Determines animation names.
+     * Game time at which freeze will end.
      */
-    animationPrefix: string;
+    private freezeEndTime: number;
+    private _isFrozen: boolean; // true if player cant move
 
     // player attributes
     speed: number = 1;
@@ -47,6 +49,10 @@ export class Player {
      */
     private jumpEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
+    /**
+     * Determines animation names.
+     */
+    animationPrefix: string;
     animationKeys: {
         walk: string,
         idle: string,
@@ -149,7 +155,7 @@ export class Player {
         this.inputController.update(input);
         this.jetpackTime -= delta;
         // handle player movement
-        if (!this.isFrozen) {
+        if (!this._isFrozen) {
             // speed boost activated?
             if (!this.action1Cooldown && this.inputController.actions.action1) {
                 this.activateAction1();
@@ -290,6 +296,31 @@ export class Player {
     /* Player Actions */
 
     /**
+     * Freeze the player for the given amount of time.
+     * A frozen player is unable to move.
+     * 
+     * If a player is already frozen the freeze time only applies if the new freeze time is longer than the old one.
+     * 
+     * @param time 
+     */
+    freeze(time: number) {
+        if (!this.freezeTimer || this.freezeEndTime < this.scene.time.now + time) {
+            if (this.freezeTimer) {
+                this.freezeTimer.destroy();
+            }
+            this.freezeEndTime = this.scene.time.now + time;
+            this._isFrozen = true;
+            this.freezeTimer = this.scene.time.addEvent({
+                delay: time,
+                callback: () => {
+                    this._isFrozen = false;
+                    this.freezeTimer = null;
+                }
+            });
+        }
+    }
+
+    /**
      * Performs a player jump.
      * Emits jump particles and plays the jump animation.
      * 
@@ -322,5 +353,11 @@ export class Player {
         speedBoostEmitter.startFollow(this.sprite);
         scene.time.delayedCall(time, () => { particles.destroy(); this.jetpackTime = 0; this.maxJumpsInAir = this.MAX_AIR_JUMPS;}, [], this);
 
+    }
+
+    /* Getter and Setter */
+
+    get isFrozen(): boolean {
+        return this._isFrozen;
     }
 }
