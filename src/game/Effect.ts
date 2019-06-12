@@ -4,7 +4,7 @@ import { Player } from "./Player";
  * An effect changes player attributes for a certain time.
  * The effect is activated and deactivated.
  */
-export abstract class Effect {
+export abstract class PlayerEffect {
     protected player: Player;
 
     /**

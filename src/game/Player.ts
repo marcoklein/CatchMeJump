@@ -1,13 +1,12 @@
 import { InputController, GamepadController, KeyboardController } from "./InputController";
 import { GameScene } from "../scene/GameScene";
-import { Effect } from "./Effect";
 import { InputDeviceOptions, InputDeviceType } from "./GameConfig";
 
 export class Player {
 
-    readonly scene: Phaser.Scene;
+    readonly scene: GameScene;
 
-    isCatcher: boolean;
+    private _isCatcher: boolean;
     inputController: InputController;
     sprite: Phaser.Physics.Arcade.Sprite = null; // sprite player controls
     physicsBody: Phaser.Physics.Arcade.Body;
@@ -41,9 +40,13 @@ export class Player {
     jetpackTime: number;
 
 
-    effects: Effect[];
 
     /* Visualization */
+    /**
+     * Marks a catcher.
+     */
+    private catcherEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
     /**
      * Emits particles with each player jump.
      */
@@ -61,7 +64,7 @@ export class Player {
     };
 
     
-    constructor(scene: Phaser.Scene, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string, inputOptions: InputDeviceOptions) {
+    constructor(scene: GameScene, sprite: Phaser.Physics.Arcade.Sprite, animationPrefix: string, inputOptions: InputDeviceOptions) {
         this.scene = scene;
         this.sprite = sprite;
         this.physicsBody = <Phaser.Physics.Arcade.Body> this.sprite.body;
@@ -79,6 +82,7 @@ export class Player {
     }
 
     private initEffects() {
+        // create jump emitter
         let blueParticles = this.scene.add.particles('particle_blue');
         blueParticles.setDepth(-100);
 
@@ -90,6 +94,19 @@ export class Player {
         });
         this.jumpEmitter.setFrequency(-1, 0);
         this.jumpEmitter.startFollow(this.sprite);
+
+        // create catcher emitter
+        let redParticles = this.scene.add.particles('particle_red');
+        redParticles.setDepth(-100);
+
+        this.catcherEmitter = redParticles.createEmitter({});
+        this.catcherEmitter.setScale(0.5);
+        this.catcherEmitter.setSpeed(50);
+        this.catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
+        if (!this._isCatcher) this.catcherEmitter.stop();
+
+        this.catcherEmitter.startFollow(this.sprite);
+
     }
     
     /**
@@ -359,5 +376,26 @@ export class Player {
 
     get isFrozen(): boolean {
         return this._isFrozen;
+    }
+
+    get isCatcher(): boolean {
+        return this._isCatcher;
+    }
+
+    set isCatcher(isCatcher: boolean) {
+        if (isCatcher === true && this._isCatcher === true) {
+            return; // change nothing
+        }
+
+        if (isCatcher) {
+            // freeze if catcher
+            this.freeze(this.scene.gameConfig.options.catcherFreezeTime);
+            this.catcherEmitter.start();
+        } else {
+            this.catcherEmitter.stop();
+        }
+        
+        // update internal value
+        this._isCatcher = isCatcher;
     }
 }

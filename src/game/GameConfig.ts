@@ -1,10 +1,17 @@
 export type GameSceneConfig = {
 
     // name of map to be played
-    tilemapPath?: string,
+    tilemapPath: string,
 
     // array of players playing the game
-    players?: GamePlayerConfig[]
+    players: GamePlayerConfig[],
+
+    options: {
+        /**
+         * Number of milliseconds a player is frozen if he was caught.
+         */
+        catcherFreezeTime: number
+    }
 };
 
 export type GamePlayerConfig = {

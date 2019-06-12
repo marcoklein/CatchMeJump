@@ -23,8 +23,6 @@ export class GameScene extends Phaser.Scene {
      */
     remainingGameTime = 4 * 60 * 1000;
 
-    // effect that marks catcher
-    private catcherEmitter = null;
     /**
      * The player with the highest score is marked with stars.
      */
@@ -156,13 +154,6 @@ export class GameScene extends Phaser.Scene {
         //  First create a particle manager
         //  A single manager can be responsible for multiple emitters
         //  The manager also controls which particle texture is used by _all_ emitter
-        let redParticles = this.add.particles('particle_red');
-
-        this.catcherEmitter = redParticles.createEmitter({});
-        this.catcherEmitter.setScale(0.5, 0.5);
-        this.catcherEmitter.setSpeed(50);
-        this.catcherEmitter.setBlendMode(Phaser.BlendModes.ADD);
-
         let starParticles = this.add.particles('gameicons');
         starParticles.setDepth(100);
         this.bestPlayerEmitter = starParticles.createEmitter({
@@ -331,17 +322,19 @@ export class GameScene extends Phaser.Scene {
         );
     }
 
+    /**
+     * Helper function to only set the given player as the catcher.
+     * The previously existing catcher will be marked as none-catcher.
+     * 
+     * @param player 
+     */
     setCatcher(player: Player) {
         // sets given player as catcher
         // loops through all players to mark "old" catcher as no catcher
-
         let currentCatcher = _.find(this.players, player => {return player.isCatcher});
         if (currentCatcher) currentCatcher.isCatcher = false;
         // promote playerB as catcher
         player.isCatcher = true;
-        // attach catcher effect to playerB
-        this.catcherEmitter.startFollow(player.sprite);
-        player.freeze(2500);
     }
 
     /**

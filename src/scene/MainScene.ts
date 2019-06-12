@@ -260,7 +260,10 @@ export class MainScene extends Phaser.Scene {
         // prepare game config
         let gameConfig: GameSceneConfig = {
             tilemapPath: maps[mapIndex],
-            players: []
+            players: [],
+            options: {
+                catcherFreezeTime: 2500
+            }
         };
         // fill game config with players
         this.inputDeviceGrid.list.forEach((panel: InputDevicePanel, index: number) => {
