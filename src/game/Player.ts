@@ -255,7 +255,7 @@ export class Player {
         let sceneTime = this.scene.time;
         
         // activate speed boost
-        this.speed = 1.7;
+        this.speed = 1.5;
         this.jumpMultiplier = 1.5;
         
         // play particle animation
