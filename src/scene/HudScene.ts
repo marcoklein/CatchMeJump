@@ -25,6 +25,11 @@ export class HudScene extends Phaser.Scene {
 
     endingMusic: Phaser.Sound.BaseSound;
 
+    /**
+     * Used to go back to the main scene.
+     */
+    enterKey: Phaser.Input.Keyboard.Key;
+
     constructor() {
         super({ key: 'HudScene' });
     }
@@ -54,6 +59,8 @@ export class HudScene extends Phaser.Scene {
         // load game scene to display player information
         this.gameScene = <GameScene> this.game.scene.getScene('GameScene');
 
+        // init key
+        this.enterKey = this.input.keyboard.addKey('ENTER');
 
         // ensure game size is set properly
         this.scale.on('resize', (gameSize: {width: number; height: number}) => {
@@ -106,9 +113,6 @@ export class HudScene extends Phaser.Scene {
             // attach keydown event if finished to listen for new game
             if (!this.finished) {
                 this.finished = true;
-                
-                this.input.keyboard.once('keyup_ENTER', this.goToMainScene, this);
-
                 // start ending music
                 this.endingMusic.play();
             }
@@ -118,6 +122,9 @@ export class HudScene extends Phaser.Scene {
                     this.goToMainScene();
                 }
             });
+            if (this.enterKey.isDown) {
+                this.goToMainScene();
+            }
         }
     }
 
