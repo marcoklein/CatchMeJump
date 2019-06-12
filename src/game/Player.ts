@@ -256,7 +256,9 @@ export class Player {
     jump(strength: number = 550) {
         this.sprite.setVelocityY(-strength);
         this.sprite.anims.play(this.animationKeys.jump);
-        this.jumpEmitter.emitParticle(strength / 100);
+        let particleNum = strength / 250;
+        particleNum *= particleNum;
+        this.jumpEmitter.emitParticle(particleNum);
     }
 
     activateJetpack(time, scene) {
