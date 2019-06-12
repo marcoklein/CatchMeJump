@@ -3,8 +3,8 @@
 import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
-import { MainScene } from './MainScene';
-import { InputDeviceScene } from './scene/InputDeviceScene';
+import { MainScene } from './scene/MainScene';
+import { PreloadScene } from './scene/PreloadScene';
 
 /*let config: GameConfig = {
     type: Phaser.AUTO,
@@ -52,10 +52,13 @@ var config: Phaser.Types.Core.GameConfig = {
     },
     input: {
         gamepad: true
-    }
+    },
+    scene: [
+        PreloadScene, MainScene
+    ]
 };
 
 
 // phaser game object
 var game = new Phaser.Game(config);
-game.scene.add('InputDeviceScene', InputDeviceScene, true);
+game.scene.add('PreloadScene', PreloadScene, true);
