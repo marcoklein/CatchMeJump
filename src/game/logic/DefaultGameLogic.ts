@@ -1,4 +1,4 @@
-import { GameLogic, PlayerCollision } from "./GameLogic";
+import { GameLogic, PlayerCollision, CollisionDirection } from "./GameLogic";
 import { Player } from "../Player";
 import { GameScene } from "../../scene/GameScene";
 
@@ -23,7 +23,15 @@ export class DefaultGameLogic implements GameLogic {
         console.log('on player leave');
     }
     onPlayerCollision(collisionA: PlayerCollision, collisionB: PlayerCollision): void {
-        this.handlePlayerCollision(collisionA.player, collisionB.player);
+        // if a player jumps on another he gets an extra push
+        if (collisionA.direction === CollisionDirection.BOTTOM) {
+            collisionA.player.physicsBody.setVelocityY(-500);
+        } else if (collisionB.direction === CollisionDirection.BOTTOM) {
+            collisionB.player.physicsBody.setVelocityY(-500);
+        } else {
+            // players might catch each other
+            this.handlePlayerCollision(collisionA.player, collisionB.player);
+        }
     }
 
     private handlePlayerCollision(playerA: Player, playerB: Player) {
