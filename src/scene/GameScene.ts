@@ -72,28 +72,9 @@ export class GameScene extends Phaser.Scene {
         this.gameConfig = this.registry.get('gameConfig');
         
 
-        let maps = [
-            //'/assets/tilemaps/marcs_world.json',
-            '/assets/tilemaps/standard.json'
-            /*'/assets/tilemaps/flat.json',
-            '/assets/tilemaps/catchmejump1.json',
-            '/assets/tilemaps/catchmejump2.json',
-            '/assets/tilemaps/catchmejump3.json',
-            '/assets/tilemaps/catchmejump4.json',
-            '/assets/tilemaps/superjump.json',
-            '/assets/tilemaps/mighty.json',
-            '/assets/tilemaps/megamap.json',
-            '/assets/tilemaps/spring.json',
-            '/assets/tilemaps/lost.json',
-            '/assets/tilemaps/itemize.json',
-            '/assets/tilemaps/ultimate.json'*/
-        ];
-        // load a random map
-        this.mapIndex = _.random(maps.length - 1);
-        maps.forEach((mapKey, index) => {
-            this.load.tilemapTiledJSON("map_" + index, mapKey);
-        });
-
+        // load needed map
+        this.cache.tilemap.remove('tilemap');
+        this.load.tilemapTiledJSON('tilemap', this.gameConfig.tilemapPath);
     }
 
     /**
@@ -155,7 +136,7 @@ export class GameScene extends Phaser.Scene {
 
         // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
         // Phaser's cache (i.e. the name you used in preload)
-        const map = this.make.tilemap({key: 'map_' + this.mapIndex});
+        const map = this.make.tilemap({key: 'tilemap'});
         const baseTiles = map.addTilesetImage('base_platformer', 'base_tiles');
         const buildingTiles = map.addTilesetImage('building', 'building_tiles');
         const candyTiles = map.addTilesetImage('candy', 'candy_tiles');

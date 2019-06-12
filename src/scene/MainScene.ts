@@ -6,6 +6,7 @@ import { InputDeviceType, InputDeviceOptions, GameSceneConfig, GamePlayerConfig 
 import { InputDeviceGrid } from '../ui/InputDeviceGrid';
 import { GameScene } from './GameScene';
 import { HudScene } from '../HudScene';
+import _ = require('underscore');
 
 const PLAYER_TEXTURES = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];
 
@@ -224,9 +225,30 @@ export class MainScene extends Phaser.Scene {
             return;
         }
         this.startingGame = true;
+
+        // select random map
+        let maps = [
+            //'/assets/tilemaps/marcs_world.json',
+            '/assets/tilemaps/standard.json',
+            '/assets/tilemaps/flat.json',
+            '/assets/tilemaps/catchmejump1.json',
+            '/assets/tilemaps/catchmejump2.json',
+            '/assets/tilemaps/catchmejump3.json',
+            '/assets/tilemaps/catchmejump4.json',
+            '/assets/tilemaps/superjump.json',
+            '/assets/tilemaps/mighty.json',
+            '/assets/tilemaps/megamap.json',
+            '/assets/tilemaps/spring.json',
+            '/assets/tilemaps/lost.json',
+            '/assets/tilemaps/itemize.json',
+            '/assets/tilemaps/ultimate.json'
+        ];
+        // load a random map
+        let mapIndex = _.random(maps.length - 1);
+
         // prepare game config
         let gameConfig: GameSceneConfig = {
-            //tilemapPath: '/assets/tilemaps/flat.json',
+            tilemapPath: maps[mapIndex],
             players: []
         };
         // fill game config with players
