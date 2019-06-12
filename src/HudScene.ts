@@ -23,6 +23,8 @@ export class HudScene extends Phaser.Scene {
     showFps: boolean = false;
     fpsText: Phaser.GameObjects.Text;
 
+    endingMusic: Phaser.Sound.BaseSound;
+
     constructor() {
         super({ key: 'HudScene' });
     }
@@ -30,6 +32,9 @@ export class HudScene extends Phaser.Scene {
     preload() {
         // load players
         //this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
+        
+        // load music
+        this.endingMusic = this.sound.add('music_game_ending', {loop: true});
     }
 
     create() {
@@ -103,6 +108,9 @@ export class HudScene extends Phaser.Scene {
                 this.finished = true;
                 
                 this.input.keyboard.once('keyup_ENTER', this.goToMainScene, this);
+
+                // start ending music
+                this.endingMusic.play();
             }
             // listen for gamepad start button press to go to main scene
             this.input.gamepad.gamepads.forEach((pad) => {
@@ -116,6 +124,9 @@ export class HudScene extends Phaser.Scene {
     private goToMainScene() {
         if (this.leavingScene) return;
         this.leavingScene = true;
+
+        // stop music
+        this.endingMusic.destroy();
 
         // destroy game scenes
         this.scene.remove('GameScene');

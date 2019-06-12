@@ -14,7 +14,10 @@ export class PreloadScene extends Phaser.Scene {
 
         // load music
         this.load.audio('music_menu', 'assets/music/awesomeness.wav');
-        this.load.audio('music_retro_level1', 'assets/music/retro_music_level1.wav');
+        this.load.audio('music_game_1', 'assets/music/retro_music_level1.wav');
+        this.load.audio('music_game_2', 'assets/music/retro_music_level2.wav');
+        this.load.audio('music_game_3', 'assets/music/retro_music_level3.wav');
+        this.load.audio('music_game_ending', 'assets/music/retro_music_ending.wav');
         // load background
         this.load.image('background', 'assets/backgrounds/bg.png');
         // load html

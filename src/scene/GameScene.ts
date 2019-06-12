@@ -43,6 +43,7 @@ export class GameScene extends Phaser.Scene {
     // time till next item is spawned
     nextItemSpawn: number = 15000;
 
+    gameMusic: Phaser.Sound.BaseSound;
 
     /**
      * Game Logic
@@ -132,9 +133,21 @@ export class GameScene extends Phaser.Scene {
             this.gameLogic.onGameStart(this.players);
         }, 0);
     }
+    
+    private startMusic() {
+        let musicNumber = _.random(1, 3);
+        this.gameMusic = this.sound.add('music_game_' + musicNumber, {
+            loop: true
+        });
+        this.gameMusic.play();
+    }
+
+    private stopMusic() {
+        this.gameMusic.destroy();
+    }
 
     _create() {
-
+        this.startMusic();
         //  First create a particle manager
         //  A single manager can be responsible for multiple emitters
         //  The manager also controls which particle texture is used by _all_ emitter
@@ -565,6 +578,7 @@ export class GameScene extends Phaser.Scene {
             this.updateItemSpawner(time, delta);
         } else {
             // game finished - do nothing
+            this.stopMusic();
             this.scene.pause();
         }
 
