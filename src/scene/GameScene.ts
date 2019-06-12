@@ -175,7 +175,7 @@ export class GameScene extends Phaser.Scene {
         const belowLayer = map.createStaticLayer('Below Player', tilesets, 0, 0);
         belowLayer.setDepth(-1000);
         this.worldLayer = map.createStaticLayer('World', tilesets, 0, 0);
-        this.worldLayer.setDepth(10);
+        this.worldLayer.setDepth(0);
         const aboveLayer = map.createStaticLayer('Above Player', tilesets, 0, 0);
         aboveLayer.setDepth(1000);
         this.objectLayer = map.createDynamicLayer('Objects', tilesets, 0, 0);
