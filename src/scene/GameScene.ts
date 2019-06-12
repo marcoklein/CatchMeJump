@@ -594,19 +594,19 @@ export class GameScene extends Phaser.Scene {
     }
 
     private updatePlayers(time: number, delta: number) {
-        let highestScore: number = 0;
+        let highestScore: number = -1;
         let bestPlayer: Player = null;
         this.players.forEach(player => {
             player.update(time, delta, this);
             // best player effect follows best player
-            if (highestScore !== -1) {
+            if (highestScore !== null) {
                 if (Math.round(player.score / 1000) === highestScore) {
                     // detach highest score effect from everybody
                     this.bestPlayerEmitter.pause();
                     this.bestPlayerIcon.setVisible(false);
                     bestPlayer = null;
-                    highestScore = -1;
-                } else if (player.score > highestScore) {
+                    highestScore = null;
+                } else if (Math.round(player.score / 1000) > highestScore) {
                     highestScore = Math.round(player.score / 1000);
                     bestPlayer = player;
                 }
