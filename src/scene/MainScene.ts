@@ -29,6 +29,8 @@ export class MainScene extends Phaser.Scene {
 
     menuMusic: Phaser.Sound.BaseSound;
 
+    sceneStartTime: number;
+
 
     /**
      * Default keyboard configurations as input device.
@@ -73,9 +75,10 @@ export class MainScene extends Phaser.Scene {
 
     create() {
         this.startingGame = false;
+        this.sceneStartTime = this.time.now;
         this.startMusic();
-        this.initGamepadListeners();
         this.initUserInterface();
+        this.initGamepadListeners();
         this.initResizing();
     }
 
@@ -105,7 +108,9 @@ export class MainScene extends Phaser.Scene {
         this.input.gamepad.on('connected', this.onGamepadConnected, this);
         this.input.gamepad.on('disconnected', this.onGamepadDisconnected, this);
 
+        console.log('total gamepads:', this.input.gamepad.total);
         this.input.gamepad.gamepads.forEach((pad) => {
+            console.log('gamepad connect');
             this.onGamepadConnected(pad);
         });
     }
@@ -225,6 +230,10 @@ export class MainScene extends Phaser.Scene {
      * Starts a new game by create a game scene.
      */
     private startGame() {
+        if (this.time.now - this.sceneStartTime < 1000) {
+            // do not allow immediate start as this may be due to a long button press
+            return;
+        }
         if (this.startingGame) {
             return;
         }

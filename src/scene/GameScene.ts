@@ -21,7 +21,7 @@ export class GameScene extends Phaser.Scene {
     /**
      * Game time.
      */
-    remainingGameTime = 5 * 60 * 1000;
+    remainingGameTime = 3 * 60 * 1000;
 
     // effect that marks catcher
     private catcherEmitter = null;
@@ -100,13 +100,11 @@ export class GameScene extends Phaser.Scene {
         this.initPhysics();
         this.enableMap();
         
-
         // ensure game size is set properly
         this.scale.on('resize', (gameSize: {width: number; height: number}) => {
             this.cameras.resize(gameSize.width, gameSize.height);
         });
 
-    
         // notify game logic about start
         this.gameLogic.onGameStart(this.players);
     }
