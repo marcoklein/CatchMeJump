@@ -31,36 +31,32 @@ export class DefaultGameLogic implements GameLogic {
         // if a player jumps on another he gets an extra push
         if (collisionA.direction === CollisionDirection.BOTTOM) {
             // player A jumped on player B
-            collisionA.player.jump(500);
-            if (collisionB.player.isCatcher) {
-                collisionA.player.score += 1000;
-            } else {
-                collisionA.player.score += 500;
-            }
-            // allow catching by jumping on player
-            if (collisionA.player.isCatcher) {
-                this.handleCatcherCollision(collisionA.player, collisionB.player);
-            }
+            this.handlePlayerJumpOnHead(collisionA.player, collisionB.player);
         } else if (collisionB.direction === CollisionDirection.BOTTOM) {
             // player B jumped on player A
-            collisionB.player.jump(500);
-            if (collisionA.player.isCatcher) {
-                collisionB.player.score += 1000;
-            } else {
-                collisionB.player.score += 500;
-            }
-            // allow catching by jumping on player
-            if (collisionB.player.isCatcher) {
-                this.handleCatcherCollision(collisionA.player, collisionB.player);
-            }
+            this.handlePlayerJumpOnHead(collisionB.player, collisionA.player);
         } else {
             // players might catch each other
             this.handleCatcherCollision(collisionA.player, collisionB.player);
         }
     }
 
+    private handlePlayerJumpOnHead(topPlayer: Player, bottomPlayer: Player) {
+        topPlayer.jump(500);
+        if (bottomPlayer.isCatcher) {
+            //collisionB.player.score += 1000;
+        } else {
+            bottomPlayer.freeze(500);
+            //collisionB.player.score += 500;
+        }
+        // allow catching by jumping on player
+        if (topPlayer.isCatcher) {
+            this.handleCatcherCollision(bottomPlayer, topPlayer);
+        }
+    }
+
     private handleCatcherCollision(playerA: Player, playerB: Player) {
-        if (playerA.isFrozen || playerB.isFrozen) {
+        if ((playerA.isCatcher && playerA.isFrozen) || (playerB.isCatcher && playerB.isFrozen)) {
             // do not allow catches during freeze time
             return;
         }
