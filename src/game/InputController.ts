@@ -10,6 +10,9 @@ export abstract class InputController {
     abstract update(input);
 }
 
+/**
+ * https://www.w3.org/TR/gamepad/#gamepad-interface
+ */
 export class GamepadController extends InputController {
     padIndex: number;
 
@@ -18,7 +21,7 @@ export class GamepadController extends InputController {
         this.padIndex = padIndex;
     }
 
-    update(input) {
+    update(input: Phaser.Input.InputPlugin) {
         // reset movements
         this.actions = {
             left: false,
@@ -30,20 +33,22 @@ export class GamepadController extends InputController {
         let gamepad = input.gamepad.getPad(this.padIndex);
         //console.warn('No Gamepad at index %i found!', this.padIndex);
         // handle player movement
-        if (gamepad && gamepad.axes[0].value < -0.1) {
-            // move left
-            this.actions.left = true;
-        } else if (gamepad && gamepad.axes[0].value > 0.1) {
-            // move right
-            this.actions.right = true;
-        }
-        // perform jump
-        if (gamepad && gamepad.buttons[0].value === 1) {
-            this.actions.jump = true;
-        }
-        // perform action1
-        if (gamepad && gamepad.buttons[1].value === 1) {
-            this.actions.action1 = true;
+        if (gamepad) {
+            if (gamepad.buttons[14].pressed || gamepad.axes[0].value < -0.1) {
+                // move left
+                this.actions.left = true;
+            } else if (gamepad.buttons[15].pressed || gamepad.axes[0].value > 0.1) {
+                // move right
+                this.actions.right = true;
+            }
+            // perform jump
+            if (gamepad.buttons[0].value === 1) {
+                this.actions.jump = true;
+            }
+            // perform action1
+            if (gamepad.buttons[1].value === 1) {
+                this.actions.action1 = true;
+            }
         }
     }
 }
