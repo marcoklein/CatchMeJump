@@ -98,6 +98,7 @@ export class GameScene extends Phaser.Scene {
         this.createMap();
         this.createPlayers(this.gameConfig);
         this.initPhysics();
+        this.enableMap();
         
 
         // ensure game size is set properly
@@ -239,8 +240,34 @@ export class GameScene extends Phaser.Scene {
             faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
         });*/
 
+
+    }
+
+    private initPhysics() {
+        // enable collision between platforms and player
+        this.players.forEach(player => {
+            this.physics.add.collider(player.sprite, this.worldLayer);
+        });
+        // listen to player to player events
+        for (let i = 0; i < this.players.length; i++) {
+            for (let j = i; j < this.players.length; j++) {
+                if (i != j) {
+                    this.physics.add.collider(this.players[i].sprite, this.players[j].sprite, this.playersCollided, null, this);
+                    //this.physics.add.overlap(this.players[i].sprite, this.players[j].sprite, this.playersOverlap, null, this);
+                }
+            }
+        }
+
+        // set bounds
+        this.physics.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHeight);
+        //this.cameras.main.setBounds(-200, -200, 1600, 1600);
+
+    }
+
+    private enableMap() {
+        
         //console.log('props: ', map.properties);
-        if (_.find(<any>map.properties, (prop: any) => {return prop.name === 'noBorders' && prop.value === true})) {
+        if (_.find(<any> this.map.properties, (prop: any) => {return prop.name === 'noBorders' && prop.value === true})) {
             //console.log('playing map without borders');
             this.players.forEach(player => {
                 // players are placed on top if they fall down
@@ -282,28 +309,6 @@ export class GameScene extends Phaser.Scene {
                 }
             });
         }
-
-    }
-
-    private initPhysics() {
-        // enable collision between platforms and player
-        this.players.forEach(player => {
-            this.physics.add.collider(player.sprite, this.worldLayer);
-        });
-        // listen to player to player events
-        for (let i = 0; i < this.players.length; i++) {
-            for (let j = i; j < this.players.length; j++) {
-                if (i != j) {
-                    this.physics.add.collider(this.players[i].sprite, this.players[j].sprite, this.playersCollided, null, this);
-                    //this.physics.add.overlap(this.players[i].sprite, this.players[j].sprite, this.playersOverlap, null, this);
-                }
-            }
-        }
-
-        // set bounds
-        this.physics.world.setBounds(0, 0, this.map.width * this.map.tileWidth, this.map.height * this.map.tileHeight);
-        //this.cameras.main.setBounds(-200, -200, 1600, 1600);
-
     }
 
 
