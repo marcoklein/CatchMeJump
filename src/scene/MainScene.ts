@@ -16,7 +16,7 @@ const PLAYER_TEXTURES = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', '
 export class MainScene extends Phaser.Scene {
 
     titleText: Phaser.GameObjects.Text;
-    backgroundImage: Phaser.GameObjects.TileSprite;
+    backgroundImage: Phaser.GameObjects.Image;
     inputDeviceGrid: InputDeviceGrid;
 
     startingGame: boolean = false;
@@ -113,7 +113,8 @@ export class MainScene extends Phaser.Scene {
 
     private initUserInterface() {
         // set background image
-        this.backgroundImage = this.add.tileSprite(0, 0, this.game.scale.width * 2, this.game.scale.height * 2, 'background');
+        this.backgroundImage = this.add.image(0, 0, 'background');
+        this.backgroundImage.setOrigin(0, 0);
 
         // add title
         this.titleText = this.add.text(this.scale.width / 2, 20, 'Input Devices', { fontStyle: 'bold', fontSize: '32px', fontFamily: '"Roboto Condensed"', color: '#000'});
@@ -153,6 +154,9 @@ export class MainScene extends Phaser.Scene {
             width / 2 - this.titleText.width / 2,
             20
         );
+
+        // background image
+        this.backgroundImage.setDisplaySize(width, height);
 
         // position grid
         this.inputDeviceGrid.width = width * 0.8;

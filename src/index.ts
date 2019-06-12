@@ -38,10 +38,10 @@ var config: any = {
     },
     scale: {
         parent: '#game',
-        mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 960,
-        height: 640,
+        width: 800,
+        height: 600,
         min: {
             width: 400,
             height: 300
