@@ -69,14 +69,16 @@ export class Player {
     }
 
     private initEffects() {
-        let blueParticles = this.scene.add.particles('particle_red');
+        let blueParticles = this.scene.add.particles('particle_blue');
         blueParticles.setDepth(-100);
 
-        this.jumpEmitter = blueParticles.createEmitter({});
-        this.jumpEmitter.setScale(0.5);
-        this.jumpEmitter.setSpeed(50);
+        this.jumpEmitter = blueParticles.createEmitter({
+            scale: 0.5,
+            speed: 50,
+            blendMode: Phaser.BlendModes.ADD,
+            tint: [0x22aa22]
+        });
         this.jumpEmitter.setFrequency(-1, 0);
-        this.jumpEmitter.setBlendMode(Phaser.BlendModes.ADD);
         this.jumpEmitter.startFollow(this.sprite);
     }
     
@@ -150,7 +152,7 @@ export class Player {
                 this.speed = 1.5;
                 this.action1Cooldown = true;
                 // play particle animation
-                var particles = scene.add.particles('particle_red');
+                var particles = scene.add.particles('particle_blue');
                 let speedBoostEmitter = particles.createEmitter({});
                 speedBoostEmitter.setPosition(0, 35);
                 speedBoostEmitter.setScale(0.5);
@@ -160,7 +162,7 @@ export class Player {
                 sceneTime.delayedCall(1500, () => { this.speed = 1; particles.destroy(); }, [], this);
                 sceneTime.delayedCall(5000, () => {
                     this.action1Cooldown = false; this.speed = 1;
-                    let speedBoostNotificationParticles = scene.add.particles('particle_red');
+                    let speedBoostNotificationParticles = scene.add.particles('particle_blue');
                     let speedBoostNotification = speedBoostNotificationParticles.createEmitter({});
                     speedBoostNotification.setScale(0.5);
                     speedBoostNotification.setSpeed(300);
@@ -267,7 +269,7 @@ export class Player {
         this.maxJumpsInAir = 1000;
         //this.action1Cooldown = true;
         // play particle animation
-        var particles = scene.add.particles('particle_red');
+        var particles = scene.add.particles('particle_blue');
         let speedBoostEmitter = particles.createEmitter({});
         speedBoostEmitter.setPosition(0, 35);
         speedBoostEmitter.setScale(0.5);

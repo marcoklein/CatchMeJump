@@ -125,7 +125,7 @@ export class GameScene extends Phaser.Scene {
         //  First create a particle manager
         //  A single manager can be responsible for multiple emitters
         //  The manager also controls which particle texture is used by _all_ emitter
-        var particles = this.add.particles('particle_blue');
+        var particles = this.add.particles('particle_red');
 
         this.catcherEmitter = particles.createEmitter({});
         this.catcherEmitter.setScale(0.5, 0.5);
