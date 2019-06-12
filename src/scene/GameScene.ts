@@ -126,13 +126,6 @@ export class GameScene extends Phaser.Scene {
             this.players.push(player);
         });
     }
-    create() {
-        // needed because otherwise gamepads are not detected
-        setTimeout(() => {
-            this._create();
-            this.gameLogic.onGameStart(this.players);
-        }, 0);
-    }
     
     private startMusic() {
         let musicNumber = _.random(1, 3);
@@ -146,7 +139,7 @@ export class GameScene extends Phaser.Scene {
         this.gameMusic.destroy();
     }
 
-    _create() {
+    create() {
         this.startMusic();
         //  First create a particle manager
         //  A single manager can be responsible for multiple emitters
@@ -293,6 +286,9 @@ export class GameScene extends Phaser.Scene {
                 }
             });
         }
+    
+        // notify game logic about start
+        this.gameLogic.onGameStart(this.players);
     }
 
     spawnItem(x, y) {
