@@ -5,7 +5,7 @@ import { ImageButton } from '../ui/ImageButton';
 import { InputDeviceType, InputDeviceOptions, GameSceneConfig, GamePlayerConfig } from '../game/GameConfig';
 import { InputDeviceGrid } from '../ui/InputDeviceGrid';
 import { GameScene } from './GameScene';
-import { HudScene } from '../HudScene';
+import { HudScene } from './HudScene';
 import _ = require('underscore');
 
 const PLAYER_TEXTURES = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];

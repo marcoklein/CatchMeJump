@@ -3,7 +3,7 @@ import * as Phaser from 'phaser';
 import * as _ from 'underscore';
 
 import { Player } from '../game/Player';
-import { KeyboardController, GamepadController, InputController } from '../InputController';
+import { KeyboardController, GamepadController, InputController } from '../game/InputController';
 import { GameLogic, CollisionDirection } from '../game/logic/GameLogic';
 import { DefaultGameLogic } from '../game/logic/DefaultGameLogic';
 import { GameSceneConfig, InputDeviceOptions } from '../game/GameConfig';
