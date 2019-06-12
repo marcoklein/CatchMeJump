@@ -23,11 +23,6 @@ export class GameScene extends Phaser.Scene {
      */
     remainingGameTime = 4 * 60 * 1000;
 
-    /**
-     * The player with the highest score is marked with stars.
-     */
-    private bestPlayerEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
-    private bestPlayerIcon: Phaser.GameObjects.Image;
 
     /* Map related */
 
@@ -61,7 +56,7 @@ export class GameScene extends Phaser.Scene {
     /**
      * Game Logic
      */
-    gameLogic: GameLogic = new DefaultGameLogic(this);
+    gameLogic: GameLogic;
 
     constructor() {
         super({
@@ -97,14 +92,13 @@ export class GameScene extends Phaser.Scene {
         this.createPlayers(this.gameConfig);
         this.initPhysics();
         this.enableMap();
+        this.initGameLogic();
         
         // ensure game size is set properly
         this.scale.on('resize', (gameSize: {width: number; height: number}) => {
             this.cameras.resize(gameSize.width, gameSize.height);
         });
 
-        // notify game logic about start
-        this.gameLogic.onGameStart(this.players);
     }
 
     /**
@@ -151,32 +145,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     private createEffects() {
-        //  First create a particle manager
-        //  A single manager can be responsible for multiple emitters
-        //  The manager also controls which particle texture is used by _all_ emitter
-        let starParticles = this.add.particles('gameicons');
-        starParticles.setDepth(100);
-        this.bestPlayerEmitter = starParticles.createEmitter({
-            tint: 0xffff00,
-            frame: 'medal1',
-            scale: 1,
-            speed: 50,
-            frequency: 1000,
-            quantity: 3,
-            lifespan: 1000,
-            blendMode: Phaser.BlendModes.NORMAL
-        });
-        //this.bestPlayerEmitter.setGravityY(-10);
-        this.bestPlayerEmitter.pause();
-
-        // init best player icon
-        this.bestPlayerIcon = this.add.image(0, 0, 'gameicons', 'trophy');
-        this.bestPlayerIcon.setScale(1.3);
-        this.bestPlayerIcon.setTintFill(0xffff00);
-        this.bestPlayerIcon.setDepth(100);
-        this.bestPlayerIcon.setVisible(false);
-        this.bestPlayerIcon.setOrigin(0.5, 1);
-        
     }
 
     private createMap() {
@@ -301,6 +269,12 @@ export class GameScene extends Phaser.Scene {
                 }
             });
         }
+    }
+
+    private initGameLogic() {
+        this.gameLogic = new DefaultGameLogic(this);
+        // notify game logic about start
+        this.gameLogic.onGameStart(this.players);
     }
 
 
@@ -592,32 +566,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     private updatePlayers(time: number, delta: number) {
-        let highestScore: number = -1;
-        let bestPlayer: Player = null;
         this.players.forEach(player => {
             player.update(time, delta, this);
-            // best player effect follows best player
-            if (highestScore !== null) {
-                if (Math.round(player.score / 1000) === highestScore) {
-                    // detach highest score effect from everybody
-                    this.bestPlayerEmitter.pause();
-                    this.bestPlayerIcon.setVisible(false);
-                    bestPlayer = null;
-                    highestScore = null;
-                } else if (Math.round(player.score / 1000) > highestScore) {
-                    highestScore = Math.round(player.score / 1000);
-                    bestPlayer = player;
-                }
-            }
         });
-        // update best player effect
-        if (bestPlayer) {
-            this.bestPlayerIcon.setVisible(true);
-            this.bestPlayerIcon.x = bestPlayer.sprite.x;
-            this.bestPlayerIcon.y = bestPlayer.sprite.y - 30;
-            //this.bestPlayerEmitter.resume();
-            //this.bestPlayerEmitter.startFollow(bestPlayer.sprite, 0, -30);
-        }
     }
 
     update(time: number, delta: number) {
