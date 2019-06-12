@@ -108,9 +108,7 @@ export class MainScene extends Phaser.Scene {
         this.input.gamepad.on('connected', this.onGamepadConnected, this);
         this.input.gamepad.on('disconnected', this.onGamepadDisconnected, this);
 
-        console.log('total gamepads:', this.input.gamepad.total);
         this.input.gamepad.gamepads.forEach((pad) => {
-            console.log('gamepad connect');
             this.onGamepadConnected(pad);
         });
     }
