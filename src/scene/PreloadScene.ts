@@ -8,9 +8,9 @@ export class PreloadScene extends Phaser.Scene {
 
     preload() {
         // uncomment to show preload screen
-        if ((<any> this.game.config).showPreloadScreen) {
+        //if ((<any> this.game.config).showPreloadScreen) {
             this.initPreloadScreen();
-        }
+        //}
 
         // load music
         this.load.audio('music_menu', 'assets/music/awesomeness.wav');
