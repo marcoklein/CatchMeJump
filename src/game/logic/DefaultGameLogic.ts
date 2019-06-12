@@ -30,16 +30,26 @@ export class DefaultGameLogic implements GameLogic {
     onPlayerCollision(collisionA: PlayerCollision, collisionB: PlayerCollision): void {
         // if a player jumps on another he gets an extra push
         if (collisionA.direction === CollisionDirection.BOTTOM) {
+            // player A jumped on player B
             collisionA.player.jump(500);
+            // allow catching by jumping on player
+            if (collisionA.player.isCatcher) {
+                this.handleCatcherCollision(collisionA.player, collisionB.player);
+            }
         } else if (collisionB.direction === CollisionDirection.BOTTOM) {
+            // player B jumped on player A
             collisionB.player.jump(500);
+            // allow catching by jumping on player
+            if (collisionB.player.isCatcher) {
+                this.handleCatcherCollision(collisionA.player, collisionB.player);
+            }
         } else {
             // players might catch each other
-            this.handlePlayerCollision(collisionA.player, collisionB.player);
+            this.handleCatcherCollision(collisionA.player, collisionB.player);
         }
     }
 
-    private handlePlayerCollision(playerA: Player, playerB: Player) {
+    private handleCatcherCollision(playerA: Player, playerB: Player) {
         if (playerA.isFrozen || playerB.isFrozen) {
             // do not allow catches during freeze time
             return;
