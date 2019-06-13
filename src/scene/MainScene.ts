@@ -252,10 +252,14 @@ export class MainScene extends Phaser.Scene {
             '/assets/tilemaps/spring.json',
             '/assets/tilemaps/lost.json',
             '/assets/tilemaps/itemize.json',
-            '/assets/tilemaps/ultimate.json'
+            '/assets/tilemaps/ultimate.json',
+            '/assets/tilemaps/little_mushroom_island.json',
+            '/assets/tilemaps/thenewnew.json',
+            '/assets/tilemaps/thefall.json'
         ];
         // load a random map
         let mapIndex = _.random(maps.length - 1);
+        mapIndex = maps.length - 1;
 
         // prepare game config
         let gameConfig: GameSceneConfig = {
