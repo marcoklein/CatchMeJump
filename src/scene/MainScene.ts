@@ -290,10 +290,10 @@ export class MainScene extends Phaser.Scene {
         }
 
         this.stopMusic();
-        // start game
-        this.scene.remove('MainScene');
         this.scene.add('GameScene', GameScene, true);
         this.scene.add('HudScene', HudScene, true);
+        // start game
+        this.scene.remove('MainScene');
     }
 
 }
