@@ -78,6 +78,7 @@ export class GameScene extends Phaser.Scene {
     preload() {
         // load game config
         this.gameConfig = this.registry.get('gameConfig');
+        this.remainingGameTime = this.gameConfig.options.duration;
         
         // load configured map
         this.cache.tilemap.remove('tilemap');

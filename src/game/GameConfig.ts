@@ -10,7 +10,11 @@ export type GameSceneConfig = {
         /**
          * Number of milliseconds a player is frozen if he was caught.
          */
-        catcherFreezeTime: number
+        catcherFreezeTime: number,
+        /**
+         * Duration of a game.
+         */
+        duration: number
     }
 };
 

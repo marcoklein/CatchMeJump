@@ -259,14 +259,14 @@ export class MainScene extends Phaser.Scene {
         ];
         // load a random map
         let mapIndex = _.random(maps.length - 1);
-        mapIndex = maps.length - 1;
 
         // prepare game config
         let gameConfig: GameSceneConfig = {
             tilemapPath: maps[mapIndex],
             players: [],
             options: {
-                catcherFreezeTime: 2500
+                catcherFreezeTime: 2500,
+                duration: 4 * 60 * 1000
             }
         };
         // fill game config with players
@@ -291,7 +291,7 @@ export class MainScene extends Phaser.Scene {
 
         this.stopMusic();
         // start game
-        this.scene.stop('MainScene');
+        this.scene.remove('MainScene');
         this.scene.add('GameScene', GameScene, true);
         this.scene.add('HudScene', HudScene, true);
     }
