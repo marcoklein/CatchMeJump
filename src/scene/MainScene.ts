@@ -78,7 +78,9 @@ export class MainScene extends Phaser.Scene {
         this.sceneStartTime = this.time.now;
         this.startMusic();
         this.initUserInterface();
-        this.initGamepadListeners();
+        _.defer(() => {
+            this.initGamepadListeners();
+        });
         this.initResizing();
     }
 
