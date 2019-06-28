@@ -178,6 +178,9 @@ export class Player {
                 this.activateAction1();
             }
 
+            // used to try out custom player graphics (key: test_player)
+            // this.sprite.anims.play = (key: string | Phaser.Animations.Animation, ignoreIfPlaying?: boolean, startFrame?: number): Phaser.GameObjects.GameObject => {return this.sprite.setTexture('test_player');};
+
 
             if (this.inputController.actions.left) {
                 // move left

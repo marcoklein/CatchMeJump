@@ -31,6 +31,7 @@ export class PreloadScene extends Phaser.Scene {
         
         // load players
         this.load.atlas('players', 'assets/sprites/aliens.png', 'assets/sprites/aliens.json');
+        // uncomment to test player images this.load.image('test_player', 'assets/sprites/android.png');
 
         // load items
         this.load.image('jetpack_item', 'assets/sprites/jetpack_item.png');
