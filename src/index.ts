@@ -29,7 +29,7 @@ import { PreloadScene } from './scene/PreloadScene';
 var config: any = {
     showPreloadScreen: true,
     type: Phaser.AUTO,
-    backgroundColor: '#222',
+    backgroundColor: 0x1155BB,
     fps: {
         target: 60
     },

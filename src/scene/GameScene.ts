@@ -88,7 +88,6 @@ export class GameScene extends Phaser.Scene {
     
     create() {
         this.startMusic();
-        this.createEffects();
         this.createMap();
         this.createPlayers(this.gameConfig);
         this.initPhysics();
@@ -143,9 +142,6 @@ export class GameScene extends Phaser.Scene {
 
     private stopMusic() {
         this.gameMusic.destroy();
-    }
-
-    private createEffects() {
     }
 
     private createMap() {
