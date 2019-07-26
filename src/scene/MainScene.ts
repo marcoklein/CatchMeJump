@@ -10,12 +10,15 @@ import _ = require('underscore');
 
 const PLAYER_TEXTURES = ['alienGreen', 'alienBlue', 'alienBeige', 'alienPink', 'alienYellow'];
 
+declare var remoteGamepadAPI: any;
+
 /**
  * Manage adding and removing of controllers.
  */
 export class MainScene extends Phaser.Scene {
 
     titleText: Phaser.GameObjects.Text;
+    connectionCodeText: Phaser.GameObjects.Text;
     backgroundImage: Phaser.GameObjects.Image;
     inputDeviceGrid: InputDeviceGrid;
 
@@ -123,7 +126,10 @@ export class MainScene extends Phaser.Scene {
 
         // add title
         this.titleText = this.add.text(this.scale.width / 2, 20, 'Input Devices', { fontStyle: 'bold', fontSize: '32px', fontFamily: '"Roboto Condensed"', color: '#000'});
-
+        if (remoteGamepadAPI && remoteGamepadAPI.server.connectionCode) {
+            this.connectionCodeText = this.add.text(this.scale.width / 2, 60, 'Connection Code: ' + remoteGamepadAPI.server.connectionCode, { fontStyle: 'bold', fontSize: '22px', fontFamily: '"Roboto Condensed"', color: '#000'});
+        }
+        
         // add buttons
         this.startButton = new ImageButton(this, 0, 0, 'ui_icons', 'buttonStart', () => {
             this.startGame();
@@ -159,6 +165,12 @@ export class MainScene extends Phaser.Scene {
             width / 2 - this.titleText.width / 2,
             20
         );
+        if (this.connectionCodeText) {
+            this.connectionCodeText.setPosition(
+                width / 2 - this.connectionCodeText.width / 2,
+                60
+            )
+        }
 
         // background image
         this.backgroundImage.setDisplaySize(width, height);
