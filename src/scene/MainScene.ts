@@ -257,7 +257,8 @@ export class MainScene extends Phaser.Scene {
             '/assets/tilemaps/ultimate.json',
             '/assets/tilemaps/little_mushroom_island.json',
             '/assets/tilemaps/thenewnew.json',
-            '/assets/tilemaps/thefall.json'
+            '/assets/tilemaps/thefall.json',
+            '/assets/tilemaps/capturetheflag.json'
         ];
         // load a random map
         let mapIndex = _.random(maps.length - 1);

@@ -134,7 +134,7 @@ export class Player {
      * 
      * @param anims Animation manager of the scene.
      */
-    private createAnimations(anims: any) {
+    private createAnimations(anims: Phaser.Animations.AnimationManager) {
         anims.create({
             key: this.animationKeys.walk,
             frames: anims.generateFrameNames('players', { prefix: (this.animationPrefix + '_walk'), start: 1, end: 2 }),
