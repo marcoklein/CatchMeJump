@@ -253,24 +253,24 @@ export class MainScene extends Phaser.Scene {
 
         // select random map
         let maps = [
-            //'/assets/tilemaps/marcs_world.json',
-            '/assets/tilemaps/standard.json',
-            '/assets/tilemaps/flat.json',
-            '/assets/tilemaps/catchmejump1.json',
-            '/assets/tilemaps/catchmejump2.json',
-            '/assets/tilemaps/catchmejump3.json',
-            '/assets/tilemaps/catchmejump4.json',
-            '/assets/tilemaps/superjump.json',
-            '/assets/tilemaps/mighty.json',
-            '/assets/tilemaps/megamap.json',
-            '/assets/tilemaps/spring.json',
-            '/assets/tilemaps/lost.json',
-            '/assets/tilemaps/itemize.json',
-            '/assets/tilemaps/ultimate.json',
-            '/assets/tilemaps/little_mushroom_island.json',
-            '/assets/tilemaps/thenewnew.json',
-            '/assets/tilemaps/thefall.json',
-            '/assets/tilemaps/capturetheflag.json'
+            //'assets/tilemaps/marcs_world.json',
+            'assets/tilemaps/standard.json',
+            'assets/tilemaps/flat.json',
+            'assets/tilemaps/catchmejump1.json',
+            'assets/tilemaps/catchmejump2.json',
+            'assets/tilemaps/catchmejump3.json',
+            'assets/tilemaps/catchmejump4.json',
+            'assets/tilemaps/superjump.json',
+            'assets/tilemaps/mighty.json',
+            'assets/tilemaps/megamap.json',
+            'assets/tilemaps/spring.json',
+            'assets/tilemaps/lost.json',
+            'assets/tilemaps/itemize.json',
+            'assets/tilemaps/ultimate.json',
+            'assets/tilemaps/little_mushroom_island.json',
+            'assets/tilemaps/thenewnew.json',
+            'assets/tilemaps/thefall.json',
+            'assets/tilemaps/capturetheflag.json'
         ];
         // load a random map
         let mapIndex = _.random(maps.length - 1);
