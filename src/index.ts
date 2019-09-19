@@ -37,7 +37,7 @@ var config: Phaser.Types.Core.GameConfig & {showPreloadScreen:boolean} = {
         createContainer: true
     },
     scale: {
-        parent: '#game',
+        parent: 'game',
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 800,
