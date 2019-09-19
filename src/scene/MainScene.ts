@@ -328,7 +328,7 @@ export class MainScene extends Phaser.Scene {
             players: [],
             options: {
                 catcherFreezeTime: 2500,
-                duration: 2 * 1000//4 * 60 * 1000
+                duration: 4 * 60 * 1000
             }
         };
         // fill game config with players
