@@ -328,7 +328,7 @@ export class MainScene extends Phaser.Scene {
             players: [],
             options: {
                 catcherFreezeTime: 2500,
-                duration: 4 * 60 * 1000
+                duration: 2 * 1000//4 * 60 * 1000
             }
         };
         // fill game config with players
@@ -358,35 +358,5 @@ export class MainScene extends Phaser.Scene {
         this.scene.remove('MainScene');
     }
 
-
-    /**
-     * Calculates the actual viewport to place elements in corners of screen disregarding potential scaling through envelop.
-     * 
-     * Inspired by rexrainbow:
-     * https://phaser.discourse.group/t/how-to-place-game-objects-align-left-right-bounds-of-visible-game-window-in-envelop-scale-mode/1103
-     * 
-     * @param scaleManager 
-     * @param out 
-     */
-    private getViewport(scaleManager: Phaser.Scale.ScaleManager, out?: Phaser.Geom.Rectangle) {
-        if (out === undefined) {
-            out = new Phaser.Geom.Rectangle();
-        }
-        let bounds = scaleManager.canvasBounds;
-        let scale = scaleManager.displayScale;
-        let autoCenter = scaleManager.autoCenter;
-    
-        out.x = (bounds.x >= 0) ? 0 : -(bounds.x * scale.x);
-        out.y = (bounds.y >= 0) ? 0 : -(bounds.y * scale.y);
-        out.width = (bounds.width * scale.x) - out.x;
-        out.height = (bounds.height * scale.y) - out.y;
-        if ((autoCenter === 1) || (autoCenter === 2)) {
-            out.width -= out.x;
-        }
-        if ((autoCenter === 1) || (autoCenter === 3)) {
-            out.height -= out.y;
-        }
-        return out;
-    };
 
 }
