@@ -134,6 +134,7 @@ export class GameScene extends Phaser.Scene {
     
     private startMusic() {
         let musicNumber = _.random(1, 3);
+        musicNumber = 1; // only loading one music piece for now
         this.gameMusic = this.sound.add('music_game_' + musicNumber, {
             loop: true
         });

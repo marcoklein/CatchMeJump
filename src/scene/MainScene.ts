@@ -19,6 +19,7 @@ export class MainScene extends Phaser.Scene {
 
     titleText: Phaser.GameObjects.Text;
     connectionCodeText: Phaser.GameObjects.Text;
+    controllerlyInstructions: Phaser.GameObjects.Text;
     backgroundImage: Phaser.GameObjects.Image;
     inputDeviceGrid: InputDeviceGrid;
 
@@ -119,24 +120,52 @@ export class MainScene extends Phaser.Scene {
     }
 
 
+    /**
+     * The user interface has a background image that is always resized to the current game size.
+     * 
+     * Additionally, there are fields to configure the remote gamepad for the smartphone (instructions).
+     */
     private initUserInterface() {
         // set background image
         this.backgroundImage = this.add.image(0, 0, 'background');
         this.backgroundImage.setOrigin(0, 0);
 
-        // add title
-        this.titleText = this.add.text(this.scale.width / 2, 20, 'Input Devices', { fontStyle: 'bold', fontSize: '32px', fontFamily: '"Roboto Condensed"', color: '#000'});
+        // add title "Add Input Devices"
+        this.titleText = this.add.text(
+            800, // center
+            200,
+            'Add Input Devices',
+            { fontStyle: 'bold', fontSize: '32px', fontFamily: '"Roboto Condensed"', color: '#000'}
+        );
+        this.titleText.setOrigin(0.5, 0.5); // center title text
+
+        // show information about remote gamepads if the api is available
         if (remoteGamepadAPI && remoteGamepadAPI.server.connectionCode) {
-            this.connectionCodeText = this.add.text(this.scale.width / 2, 60, 'Connection Code: ' + remoteGamepadAPI.server.connectionCode, { fontStyle: 'bold', fontSize: '22px', fontFamily: '"Roboto Condensed"', color: '#000'});
+            this.connectionCodeText = this.add.text(
+                800, // x
+                230, // y
+                'Connection Code: ' + remoteGamepadAPI.server.connectionCode,
+                { fontStyle: 'bold', fontSize: '22px', fontFamily: '"Roboto Condensed"', color: '#000' }
+            );
+            this.connectionCodeText.setOrigin(0.5, 0.5);
+            this.controllerlyInstructions = this.add.text(
+                800, 270,
+                'Go to pad.kleinprojects.com with your smartphone and enter the code\nto use your mobile device as a remote gamepad!',
+                { fontStyle: 'bold', fontSize: '16px', fontFamily: '"Roboto Condensed"', color: '#633', align: 'center' }
+            );
+            this.controllerlyInstructions.setOrigin(0.5, 0.5);
         }
         
-        // add buttons
-        this.startButton = new ImageButton(this, 0, 0, 'ui_icons', 'buttonStart', () => {
-            this.startGame();
-        });
-        this.add.existing(this.startButton);
+        const gameWidth = this.scale.width;
 
-        this.inputDeviceGrid = new InputDeviceGrid(this, 150, 200, 400);
+        // the input device grid holds 5 panels á 100 width and 10 offset
+        // widthGrid = 100 * 5 + 10 * 5
+        this.inputDeviceGrid = new InputDeviceGrid(this,
+            gameWidth / 2 - 250 - 10 * 5 + 20, // x
+            320, // y
+            100 * 5 + 10 * 4  // width
+        );
+        this.inputDeviceGrid.centering = false;
         // add five panels
         for (let i = 0; i < 5; i++) {
             let panel = new InputDevicePanel(this, i + 1);
@@ -146,6 +175,18 @@ export class MainScene extends Phaser.Scene {
             this.inputDeviceGrid.add(panel);
         }
         this.add.existing(this.inputDeviceGrid);
+
+
+        // add buttons
+        this.startButton = new ImageButton(this,
+            800,
+            400,
+            'ui_icons', 'buttonStart', () => {
+                this.startGame();
+            }
+        );
+        this.startButton.setOrigin(0.5, 0.5);
+        this.add.existing(this.startButton);
     }
 
     private initResizing() {
@@ -160,15 +201,21 @@ export class MainScene extends Phaser.Scene {
     }
 
     private reposition(width: number, height: number) {
+        const topPos = height * 0.1;
+
         // position title text on top
         this.titleText.setPosition(
-            width / 2 - this.titleText.width / 2,
-            20
+            width / 2,
+            topPos
         );
         if (this.connectionCodeText) {
             this.connectionCodeText.setPosition(
-                width / 2 - this.connectionCodeText.width / 2,
-                60
+                width / 2,
+                topPos + 60
+            );
+            this.controllerlyInstructions.setPosition(
+                width / 2,
+                topPos + 100
             )
         }
 
@@ -176,13 +223,13 @@ export class MainScene extends Phaser.Scene {
         this.backgroundImage.setDisplaySize(width, height);
 
         // position grid
-        this.inputDeviceGrid.width = width * 0.8;
-        this.inputDeviceGrid.x = width / 2 - this.inputDeviceGrid.width / 2;
+        this.inputDeviceGrid.y = topPos + 220;
+        this.inputDeviceGrid.x = width / 2 - this.inputDeviceGrid.width / 2 + 50; // don't know why you have to add 50
 
         // position start button under grid
         this.startButton.setPosition(
             width * 0.5,
-            this.inputDeviceGrid.y + this.inputDeviceGrid.height
+            this.inputDeviceGrid.y + this.inputDeviceGrid.height + 10
         );
     }
 
@@ -310,5 +357,36 @@ export class MainScene extends Phaser.Scene {
         // start game
         this.scene.remove('MainScene');
     }
+
+
+    /**
+     * Calculates the actual viewport to place elements in corners of screen disregarding potential scaling through envelop.
+     * 
+     * Inspired by rexrainbow:
+     * https://phaser.discourse.group/t/how-to-place-game-objects-align-left-right-bounds-of-visible-game-window-in-envelop-scale-mode/1103
+     * 
+     * @param scaleManager 
+     * @param out 
+     */
+    private getViewport(scaleManager: Phaser.Scale.ScaleManager, out?: Phaser.Geom.Rectangle) {
+        if (out === undefined) {
+            out = new Phaser.Geom.Rectangle();
+        }
+        let bounds = scaleManager.canvasBounds;
+        let scale = scaleManager.displayScale;
+        let autoCenter = scaleManager.autoCenter;
+    
+        out.x = (bounds.x >= 0) ? 0 : -(bounds.x * scale.x);
+        out.y = (bounds.y >= 0) ? 0 : -(bounds.y * scale.y);
+        out.width = (bounds.width * scale.x) - out.x;
+        out.height = (bounds.height * scale.y) - out.y;
+        if ((autoCenter === 1) || (autoCenter === 2)) {
+            out.width -= out.x;
+        }
+        if ((autoCenter === 1) || (autoCenter === 3)) {
+            out.height -= out.y;
+        }
+        return out;
+    };
 
 }

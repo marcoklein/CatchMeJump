@@ -15,8 +15,8 @@ export class PreloadScene extends Phaser.Scene {
         // load music
         this.load.audio('music_menu', 'assets/music/awesomeness.wav');
         this.load.audio('music_game_1', 'assets/music/retro_music_level1.wav');
-        this.load.audio('music_game_2', 'assets/music/retro_music_level2.wav');
-        this.load.audio('music_game_3', 'assets/music/retro_music_level3.wav');
+        //this.load.audio('music_game_2', 'assets/music/retro_music_level2.wav');
+        //this.load.audio('music_game_3', 'assets/music/retro_music_level3.wav');
         this.load.audio('music_game_ending', 'assets/music/retro_music_ending.wav');
         // load background
         this.load.image('background', 'assets/backgrounds/bg.png');
@@ -63,14 +63,14 @@ export class PreloadScene extends Phaser.Scene {
 
     
     private initPreloadScreen() {
+        var width = this.cameras.main.width;
+        var height = this.cameras.main.height;
         
         var progressBar = this.add.graphics();
         var progressBox = this.add.graphics();
         progressBox.fillStyle(0x222222, 0.8);
         progressBox.fillRect(240, 270, 320, 50);
         
-        var width = this.cameras.main.width;
-        var height = this.cameras.main.height;
         var loadingText = this.make.text({
             x: width / 2,
             y: height / 2 - 50,

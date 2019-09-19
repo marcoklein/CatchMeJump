@@ -26,7 +26,7 @@ import { PreloadScene } from './scene/PreloadScene';
     }
 };*/
 
-var config: any = {
+var config: Phaser.Types.Core.GameConfig & {showPreloadScreen:boolean} = {
     showPreloadScreen: true,
     type: Phaser.AUTO,
     backgroundColor: 0x1155BB,
